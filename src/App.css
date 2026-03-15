@@ -1,0 +1,434 @@
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.page {
+  font-family: "DM Sans", "Segoe UI", sans-serif;
+  background: #f0f4fb;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.page-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+/* ── Top Bar ─────────────────────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.topbar-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a2340;
+  letter-spacing: -0.5px;
+}
+
+.topbar-subtitle {
+  font-size: 12px;
+  color: #8a94aa;
+  margin-top: 2px;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-outline {
+  border: 1.5px solid #d0d7e8;
+  background: #fff;
+  color: #3a4a6b;
+}
+
+.btn-primary {
+  border: none;
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-add-row {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px dashed #b8c8ee;
+  background: transparent;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+/* ── Grid Layout ─────────────────────────────────────────────────────────── */
+.layout-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.layout-grid.two-col {
+  grid-template-columns: 1fr 1fr;
+}
+
+.layout-grid.one-col {
+  grid-template-columns: 1fr;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.grid-2-gap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── Form Panel ──────────────────────────────────────────────────────────── */
+.form-panel {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 2px 16px rgba(30, 50, 100, 0.07);
+  overflow-y: auto;
+  max-height: 85vh;
+}
+
+.form-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a2340;
+  margin-bottom: 18px;
+  border-bottom: 2px solid #e8ecf5;
+  padding-bottom: 10px;
+}
+
+.form-section-title.items {
+  margin-top: 8px;
+  margin-bottom: 14px;
+}
+
+/* ── Labeled Input ───────────────────────────────────────────────────────── */
+.field-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7c8db0;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.field-input {
+  width: 100%;
+  border: 1.5px solid #e0e8f5;
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 13px;
+  outline: none;
+  background: #fff;
+  color: #1a2340;
+  transition: border-color 0.15s;
+}
+
+.field-input:focus {
+  border-color: #3b82f6;
+}
+
+.field-select {
+  width: 100%;
+  border: 1.5px solid #e0e8f5;
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: #fff;
+  color: #1a2340;
+}
+
+/* ── Row Editor ──────────────────────────────────────────────────────────── */
+.row-editor {
+  background: #f5f8ff;
+  border: 1.5px solid #dde6f8;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.row-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.row-editor-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.row-description {
+  margin-bottom: 10px;
+}
+
+/* ── Invoice Preview ─────────────────────────────────────────────────────── */
+.invoice-preview {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(30, 50, 100, 0.07);
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  color: #222;
+}
+
+/* ── Invoice Header ──────────────────────────────────────────────────────── */
+.inv-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.inv-company-name {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.inv-company-sub {
+  font-size: 11px;
+  color: #444;
+  margin-top: 2px;
+}
+
+.inv-gst-top {
+  font-size: 11px;
+  color: #555;
+  text-align: right;
+}
+
+/* ── Invoice Meta (To + Ref) ─────────────────────────────────────────────── */
+.inv-meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid #ccc;
+}
+
+.inv-to-block {
+  flex: 1;
+}
+
+.inv-party {
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.inv-sub {
+  font-size: 11px;
+  color: #444;
+}
+
+.inv-ref-block {
+  text-align: right;
+  min-width: 180px;
+}
+
+.inv-ref-block table {
+  margin-left: auto;
+  border-collapse: collapse;
+}
+
+.inv-ref-block td {
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+.inv-ref-block td:first-child {
+  color: #555;
+}
+
+.inv-ref-block td:last-child {
+  font-weight: bold;
+}
+
+/* ── Invoice Table ───────────────────────────────────────────────────────── */
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inv-table th {
+  border: 1px solid #ccc;
+  padding: 6px 8px;
+  background: #f0f0f0;
+  font-weight: bold;
+  font-size: 11px;
+  text-align: center;
+}
+
+.inv-table td {
+  border: 1px solid #ccc;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+.inv-table td.text-center {
+  text-align: center;
+}
+
+.inv-table td.text-right {
+  text-align: right;
+}
+
+.inv-table td.text-left {
+  text-align: left;
+}
+
+.inv-table .total-row {
+  background: #f9f9f9;
+}
+
+.inv-table .total-row td {
+  font-weight: bold;
+}
+
+/* ── Invoice Footer ──────────────────────────────────────────────────────── */
+.inv-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-top: 1px solid #ccc;
+}
+
+.inv-bank {
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.inv-signature {
+  font-size: 11px;
+  text-align: right;
+  line-height: 1.8;
+}
+
+.gstComp {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  color: #1a2340;
+}
+
+/* ── Responsive: Tablet (max 900px) ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  .layout-grid.two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .form-panel {
+    max-height: none;
+  }
+}
+
+/* ── Responsive: Mobile (max 600px) ─────────────────────────────────────── */
+@media (max-width: 600px) {
+  .page {
+    padding: 12px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .topbar-actions {
+    width: 100%;
+  }
+
+  .btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  /* All multi-col field grids collapse to single column */
+  .grid-2,
+  .grid-2-gap,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .form-panel {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .row-editor {
+    padding: 12px;
+  }
+
+  /* Invoice preview scrolls horizontally on small screens */
+  .invoice-preview {
+    border-radius: 10px;
+  }
+
+  .inv-header {
+    flex-direction: column;
+  }
+
+  .inv-gst-top {
+    text-align: left;
+  }
+
+  .inv-meta {
+    flex-direction: column;
+  }
+
+  .inv-ref-block {
+    text-align: left;
+    min-width: unset;
+  }
+
+  .inv-ref-block table {
+    margin-left: 0;
+  }
+
+  .inv-footer {
+    flex-direction: column;
+  }
+
+  .inv-signature {
+    text-align: left;
+  }
+}
