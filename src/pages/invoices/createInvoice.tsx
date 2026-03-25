@@ -150,7 +150,7 @@ function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps
                 <LabeledInput label="From" value={row.from} onChange={(v) => onChange("from", v)} placeholder="e.g. ZIRCON MT PLOT (14.04.25)" />
                 <LabeledInput label="To" value={row.to} onChange={(v) => onChange("to", v)} placeholder="e.g. A S SHIPPING NUMBAL CFS (15.04.25)" />
                 <LabeledInput label="Trailer No:" value={row.trailerNo} onChange={(v) => onChange("trailerNo", v)} placeholder="e.g. KATTUPALLI PORT (16.04.25)" />
-                <LabeledInput label="Invoice No:" value={row.trailerNo} onChange={(v) => onChange("trailerNo", v)} placeholder="e.g. KATTUPALLI PORT (16.04.25)" />
+                <LabeledInput label="Invoice No:" value={row.invoiceNo} onChange={(v) => onChange("invoiceNo", v)} placeholder="e.g. KATTUPALLI PORT (16.04.25)" />
                 {/* <div>
                     <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "#7c8db0", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                         Container Size
@@ -169,7 +169,7 @@ function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps
                 <LabeledInput label="Lr No:" value={row.lrNo} onChange={(v) => onChange("lrNo", v)} placeholder="e.g. TN05AK4833" />
                 <LabeledInput label="Doc No:" value={row.docNo} onChange={(v) => onChange("docNo", v)} placeholder="e.g. ELNU2251010" />
                 <LabeledInput label="Shipment No:" value={row.shipmentNo} onChange={(v) => onChange("shipmentNo", v)} placeholder="e.g. ELNU2251010" />
-                <LabeledInput label="Others:" value={row.others} onChange={(v) => onChange("amt40", v)} placeholder="e.g. ELNU2251010" />
+                <LabeledInput label="Others:" value={row.others} onChange={(v) => onChange("others", v)} placeholder="e.g. ELNU2251010" />
             </div>
 
             <h2 className="form-section-title">Other columns:</h2>
@@ -367,17 +367,31 @@ export default function CreateInvoice() {
         );
     }, 0);
 
-    const handlePrint = (): void => {
-        if (!previewRef.current) return;
-        const content = previewRef.current.innerHTML;
-        const win = window.open("", "_blank");
-        if (!win) return;
-        win.document.write(`<!DOCTYPE html><html><head><title>AVB Invoice</title><style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: Arial, sans-serif; font-size: 12px; color: #222; padding: 20px; }
-    </style></head><body>${content}</body></html>`);
-        win.document.close();
-        win.print();
+    const handlePrint = async (): Promise<void> => {
+        //     if (!previewRef.current) return;
+        //     const content = previewRef.current.innerHTML;
+        //     const win = window.open("", "_blank");
+        //     if (!win) return;
+        //     win.document.write(`<!DOCTYPE html><html><head><title>AVB Invoice</title><style>
+        //   * { box-sizing: border-box; margin: 0; padding: 0; }
+        //   body { font-family: Arial, sans-serif; font-size: 12px; color: #222; padding: 20px; }
+        // </style></head><body>${content}</body></html>`);
+        //     win.document.close();
+        //     win.print();
+        const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json", // This is the missing piece
+            },
+            body: JSON.stringify({ invoiceRows: rows, invoices: { createdBy: localStorage.getItem("userId") || 1, templateId: 1, transportFirmId: 1, ...headerDetails } })
+        });
+        if (response.status === 201) {
+            console.log("success", response);
+        }
+        else {
+            console.log("failure");
+        }
+
     };
 
     return (
@@ -388,7 +402,7 @@ export default function CreateInvoice() {
                 <div className="topbar">
                     <div>
                         <h1 className="topbar-title">Create Record</h1>
-                        <p className="topbar-subtitle">Jayalakshmi Roadlines · Export Movement</p>
+                        <p className="topbar-subtitle">sreejit · Export Movement</p>
                     </div>
                     <div className="topbar-actions">
                         <button
@@ -401,7 +415,8 @@ export default function CreateInvoice() {
                             onClick={handlePrint}
                             className="btn btn-primary"
                         >
-                            🖨 Print / Save
+                            {/* 🖨 Print / Save */}
+                            Create
                         </button>
                     </div>
                 </div>
@@ -423,12 +438,12 @@ export default function CreateInvoice() {
                             </div>
                             {selectedFirm === "2" ? <h2 className="form-section-title">Enter Header Details:</h2> : ""}
                             {selectedFirm === "2" ? <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
-                                <LabeledInput label="SAC" value={headerDetails.sac} onChange={(value) => { setheaderDetails({ ...headerDetails, sac: value }) }} placeholder="DD-MM-YYYY" />
-                                <LabeledInput label="Date" value={headerDetails.date} onChange={(value) => { setheaderDetails({ ...headerDetails, date: value }) }} placeholder="e.g. 17" />
-                                <LabeledInput label="PO No." value={headerDetails.poNo} onChange={(value) => { setheaderDetails({ ...headerDetails, poNo: +value }) }} placeholder="e.g. 17" />
+                                <LabeledInput label="SAC" value={headerDetails.sac} onChange={(value) => { setheaderDetails({ ...headerDetails, sac: value }) }} placeholder="eg:1a2b3c4d" />
+                                <LabeledInput label="Date" value={headerDetails.date} onChange={(value) => { setheaderDetails({ ...headerDetails, date: value }) }} placeholder="DD-MM-YYYY" />
+                                <LabeledInput label="PO No." value={headerDetails.poNo} onChange={(value) => { setheaderDetails({ ...headerDetails, poNo: +value }) }} type="number" placeholder="e.g. 17" />
                                 <LabeledInput label="Vendor Code" value={headerDetails.vendorCode} onChange={(value) => { setheaderDetails({ ...headerDetails, vendorCode: value }) }} placeholder="e.g. 17" />
                                 <LabeledInput label="PAN" value={headerDetails.pan} onChange={(value) => { setheaderDetails({ ...headerDetails, pan: value }) }} placeholder="e.g. 17" />
-                                <LabeledInput label="Bill No." value={headerDetails.billNo} onChange={(value) => { setheaderDetails({ ...headerDetails, billNo: +value }) }} placeholder="e.g. 17" />
+                                <LabeledInput label="Bill No." value={headerDetails.billNo} onChange={(value) => { setheaderDetails({ ...headerDetails, billNo: +value }) }} type="number" placeholder="e.g. 17" />
                             </div> : ""}
                             <div className="gstComp">
                                 <h5>Is GST note reqired?:</h5><input type="checkbox" />

@@ -5,6 +5,7 @@ import './App.css'
 import AVBInvoice from './pages/invoices/avb'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import CreateInvoice from './pages/invoices/createInvoice';
+import InvoiceList from './pages/invoices/InvoiceList';
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -16,6 +17,10 @@ function App() {
     {
       path: "/",
       element: <CreateInvoice />
+    },
+    {
+      path: "/invoiceList",
+      element: <InvoiceList />
     }
   ])
   return (
