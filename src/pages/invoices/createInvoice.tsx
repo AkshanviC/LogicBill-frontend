@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface InvoiceRow {
@@ -202,6 +202,23 @@ interface TransportFirm {
     id: string,
     name: string,
 }
+
+interface Clients {
+    id: string,
+    name: string,
+}
+
+interface Drivers {
+    id: string,
+    name: string,
+    phoneNumber: string,
+}
+
+interface Trailers {
+    id: string,
+    regNo: string,
+}
+
 interface HeaderDetails {
     sac: string,
     date: Date | string,
@@ -354,7 +371,17 @@ export default function CreateInvoice() {
     const updateRow = (id: number, field: keyof InvoiceRow, value: string): void => {
         setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
     };
-
+    const [driverList, setDriverList] = useState<Drivers[]>([]);
+    const [trailerList, setTrailerList] = useState<Trailers[]>([]);
+    const [client, setClient] = useState<number>();
+    const [driver, setDriver] = useState<number>();
+    const [trailer, setTrailer] = useState<number>();
+    const [clientList, setClientList] = useState<Clients[]>([]);
+    useEffect(() => {
+        fetch(`${import.meta.env.VITE_APP_API_URL}/api/drivers/`).then(res => res.json()).then(res => setDriverList(res.data)).catch(err => console.error(err));
+        fetch(`${import.meta.env.VITE_APP_API_URL}/api/trailers/`).then(res => res.json()).then(res => setTrailerList(res.data)).catch(err => console.error(err));
+        fetch(`${import.meta.env.VITE_APP_API_URL}/api/clients/`).then(res => res.json()).then(res => setClientList(res.data)).catch(err => console.error(err));
+    }, [])
     const addRow = (): void => setRows((prev) => [...prev, defaultRow()]);
 
     const removeRow = (id: number): void => setRows((prev) => prev.filter((r) => r.id !== id));
@@ -383,7 +410,7 @@ export default function CreateInvoice() {
             headers: {
                 "Content-Type": "application/json", // This is the missing piece
             },
-            body: JSON.stringify({ invoiceRows: rows, invoices: { createdBy: localStorage.getItem("userId") || 1, templateId: 1, transportFirmId: 1, ...headerDetails } })
+            body: JSON.stringify({ invoiceRows: rows, invoices: { createdBy: localStorage.getItem("userId") || 1, templateId: 1, transportFirmId: 1, driverId: driver, trailerId: trailer, clientId: client, ...headerDetails } })
         });
         if (response.status === 201) {
             console.log("success", response);
@@ -434,6 +461,36 @@ export default function CreateInvoice() {
                                     style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
                                 >
                                     {transportFirm ? transportFirm.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
+                                </select>
+                            </div>
+                            <div>
+                                <h2 className="form-section-title">Select Client:</h2>
+                                <select
+                                    value={client}
+                                    onChange={(e) => { setClient(+e.target.value) }}
+                                    style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                >
+                                    {clientList ? clientList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
+                                </select>
+                            </div>
+                            <div>
+                                <h2 className="form-section-title">Select Driver:</h2>
+                                <select
+                                    value={driver}
+                                    onChange={(e) => { setDriver(+e.target.value) }}
+                                    style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                >
+                                    {driverList ? driverList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
+                                </select>
+                            </div>
+                            <div>
+                                <h2 className="form-section-title">Select Trailer:</h2>
+                                <select
+                                    value={trailer}
+                                    onChange={(e) => { setTrailer(+e.target.value) }}
+                                    style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                >
+                                    {trailerList ? trailerList.map((data) => <option key={`${data.id}+${data.regNo}`} value={data.id}>{data.regNo}</option>) : ""}
                                 </select>
                             </div>
                             {selectedFirm === "2" ? <h2 className="form-section-title">Enter Header Details:</h2> : ""}
