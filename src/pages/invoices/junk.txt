@@ -949,3 +949,54 @@ const InvoiceList: React.FC = () => {
 };
 
 export default InvoiceList;
+
+<-- invoices list -->
+// ─── Mock data ────────────────────────────────────────────────────────────────
+
+const MOCK_DATA: Invoice[] = Array.from({ length: 28 }, (_, i) => ({
+  id: i + 1,
+  createdBy: Math.floor(Math.random() * 3) + 1,
+  templateId: Math.floor(Math.random() * 3) + 1,
+  date: new Date(Date.now() - Math.random() * 1e10).toISOString(),
+  transportFirmId: Math.floor(Math.random() * 4) + 1,
+  sac: `996511`,
+  billNo: `BILL-${1000 + i}`,
+  pono: `PO-${2000 + i}`,
+  vendorCode: `VC-${String(i + 1).padStart(3, "0")}`,
+  gstno: `33AABCT1332L1ZU`,
+  pan: `AABCT1332L`,
+  trailerId: (i % 5) + 1,
+  driverId: (i % 4) + 1,
+  diesel: String(Math.floor(Math.random() * 200) + 50),
+  driverBeta: String(Math.floor(Math.random() * 1000) + 200),
+  advance: String(Math.floor(Math.random() * 5000)),
+  clientId: (i % 3) + 1,
+  createdAt: new Date(Date.now() - Math.random() * 1e10).toISOString(),
+}));
+
+async function mockFetchInvoices(invoiceList: InvoiceList[], page: number, limit: number, search: string, filters: Filters): Promise<PaginatedResponse> {
+  let filtered = invoiceList;
+  if (search) {
+    const q = search.toLowerCase();
+    filtered = filtered.filter(
+      (inv) =>
+        inv.billNo?.toLowerCase().includes(q) ||
+        inv.pono?.toLowerCase().includes(q) ||
+        inv.vendorCode?.toLowerCase().includes(q) ||
+        inv.gstno?.toLowerCase().includes(q) ||
+        String(inv.id).includes(q)
+    );
+  }
+  if (filters.driverId) filtered = filtered.filter((inv) => inv.driverId === Number(filters.driverId));
+  if (filters.trailerId) filtered = filtered.filter((inv) => inv.trailerId === Number(filters.trailerId));
+  if (filters.clientId) filtered = filtered.filter((inv) => inv.clientId === Number(filters.clientId));
+
+  const start = (page - 1) * limit;
+  return {
+    data: filtered.slice(start, start + limit),
+    total: filtered.length,
+    page,
+    limit,
+    totalPages: Math.ceil(filtered.length / limit),
+  };
+}

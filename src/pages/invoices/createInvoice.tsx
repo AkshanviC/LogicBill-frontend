@@ -1,37 +1,8 @@
 
-import { useState, useRef, useEffect } from "react";
-
+import { useState, useEffect } from "react";
+import type { Drivers, Trailers, Clients, InvoiceRow } from "../../interfaces/interfaces";
 // ── Types ──────────────────────────────────────────────────────────────────
-interface InvoiceRow {
-    from: string;
-    to: string;
-    trailerNo: string;
-    lrNo: string;
-    invoiceNo: string;
-    docNo: string;
-    shipmentNo: string;
-    others: string;
-    id: number;
-    description: string;
-    emptyPickup: string;
-    stuffing: string;
-    unload: string;
-    containerSize: string;
-    vehNo: string;
-    conNo: string;
-    qty20: string;
-    qty40: string;
-    amt20: string;
-    amt40: string;
-    weight: number;
-    trailers: number;
-    rate: number;
-    amount: number;
-    prorate: number;
-    loadingCharge: number;
-    cgst: number;
-    sgst: number;
-}
+
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function toWords(num: number): string {
@@ -111,7 +82,7 @@ function LabeledInput({ label, value, onChange, placeholder = "", type = "text" 
                 min={type === "number" ? 0 : undefined}
                 placeholder={placeholder}
                 onChange={(e) => onChange(e.target.value)}
-                style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, outline: "none", background: "#fff", color: "#1a2340", transition: "border 0.15s" }}
+                style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, outline: "none", background: "#fff", color: "#1a2340", transition: "border 0.15s" }}
                 onFocus={(e) => (e.currentTarget.style.borderColor = "#3b82f6")}
                 onBlur={(e) => (e.currentTarget.style.borderColor = "#e0e8f5")}
             />
@@ -147,25 +118,6 @@ function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-                <LabeledInput label="From" value={row.from} onChange={(v) => onChange("from", v)} placeholder="e.g. ZIRCON MT PLOT (14.04.25)" />
-                <LabeledInput label="To" value={row.to} onChange={(v) => onChange("to", v)} placeholder="e.g. A S SHIPPING NUMBAL CFS (15.04.25)" />
-                <LabeledInput label="Trailer No:" value={row.trailerNo} onChange={(v) => onChange("trailerNo", v)} placeholder="e.g. KATTUPALLI PORT (16.04.25)" />
-                <LabeledInput label="Invoice No:" value={row.invoiceNo} onChange={(v) => onChange("invoiceNo", v)} placeholder="e.g. KATTUPALLI PORT (16.04.25)" />
-                {/* <div>
-                    <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "#7c8db0", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                        Container Size
-                    </label>
-                    <select
-                        value={row.containerSize}
-                        onChange={(e) => onChange("containerSize", e.target.value)}
-                        style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
-                    >
-                        {CONTAINER_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                </div> */}
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
                 <LabeledInput label="Lr No:" value={row.lrNo} onChange={(v) => onChange("lrNo", v)} placeholder="e.g. TN05AK4833" />
                 <LabeledInput label="Doc No:" value={row.docNo} onChange={(v) => onChange("docNo", v)} placeholder="e.g. ELNU2251010" />
                 <LabeledInput label="Shipment No:" value={row.shipmentNo} onChange={(v) => onChange("shipmentNo", v)} placeholder="e.g. ELNU2251010" />
@@ -179,6 +131,24 @@ function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps
                 <LabeledInput label="Rate:" value={row.rate} onChange={(v) => onChange("rate", v)} placeholder="0" type="number" />
                 <LabeledInput label="Amount (Rs.):" value={row.amount} onChange={(v) => onChange("amount", v)} placeholder="0" type="number" />
             </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                <LabeledInput label="From" value={row.from} onChange={(v) => onChange("from", v)} placeholder="e.g. ZIRCON MT PLOT (14.04.25)" />
+                <LabeledInput label="To" value={row.to} onChange={(v) => onChange("to", v)} placeholder="e.g. KATTUPALLI PORT" />
+                {/* <LabeledInput label="Trailer No:" value={row.trailerNo} onChange={(v) => onChange("trailerNo", v)} placeholder="e.g. KATTUPALLI PORT (16.04.25)" /> */}
+                <LabeledInput label="Invoice No:" value={row.invoiceNo} onChange={(v) => onChange("invoiceNo", v)} placeholder="e.g. A S SHIPPING NUMBAL CFS" />
+                {/* <div>
+                    <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "#7c8db0", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        Container Size
+                    </label>
+                    <select
+                        value={row.containerSize}
+                        onChange={(e) => onChange("containerSize", e.target.value)}
+                        style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                    >
+                        {CONTAINER_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                </div> */}
+            </div>
             <h2 className="form-section-title">Addon Rows:</h2>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10 }}>
                 <LabeledInput label="prorate:" value={row.prorate} onChange={(v) => onChange("prorate", v)} placeholder="0" type="number" />
@@ -186,6 +156,7 @@ function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps
                 <LabeledInput label="cgst:" value={row.cgst} onChange={(v) => onChange("cgst", v)} placeholder="0" type="number" />
                 <LabeledInput label="loading charges:" value={row.loadingCharge} onChange={(v) => onChange("loadingCharge", v)} placeholder="0" type="number" />
             </div>
+
         </div>
     );
 }
@@ -203,22 +174,6 @@ interface TransportFirm {
     name: string,
 }
 
-interface Clients {
-    id: string,
-    name: string,
-}
-
-interface Drivers {
-    id: string,
-    name: string,
-    phoneNumber: string,
-}
-
-interface Trailers {
-    id: string,
-    regNo: string,
-}
-
 interface HeaderDetails {
     sac: string,
     date: Date | string,
@@ -227,7 +182,8 @@ interface HeaderDetails {
     vendorCode: string,
     gst: string,
     pan: string
-
+    diesel: string,
+    driverBeta: string
 }
 
 const headerDetailsValue: HeaderDetails = {
@@ -237,7 +193,9 @@ const headerDetailsValue: HeaderDetails = {
     poNo: null,
     vendorCode: "",
     gst: "",
-    pan: ""
+    pan: "",
+    diesel: "",
+    driverBeta: "",
 }
 
 function InvoicePreview({ date, billNo, rows, totalAmount, previewRef }: InvoicePreviewProps) {
@@ -360,11 +318,11 @@ function InvoicePreview({ date, billNo, rows, totalAmount, previewRef }: Invoice
 
 // ── Main Component ─────────────────────────────────────────────────────────
 export default function CreateInvoice() {
-    const [date, setDate] = useState<string>("16/04/2025");
-    const [billNo, setBillNo] = useState<string>("17");
+    // const [date, setDate] = useState<string>("16/04/2025");
+    // const [billNo, setBillNo] = useState<string>("17");
     const [rows, setRows] = useState<InvoiceRow[]>([defaultRow()]);
     const [activeTab, setActiveTab] = useState<"form" | "preview">("form");
-    const previewRef = useRef<HTMLDivElement>(null);
+    // const previewRef = useRef<HTMLDivElement>(null);
     const [selectedFirm, setSelectedFirm] = useState("");
     const [transportFirm, setTransportFirm] = useState<TransportFirm[]>([{ id: "1", name: "Jayalakshmi" }, { id: "2", name: "sreejith" }])
     const [headerDetails, setheaderDetails] = useState<HeaderDetails>(headerDetailsValue)
@@ -386,13 +344,13 @@ export default function CreateInvoice() {
 
     const removeRow = (id: number): void => setRows((prev) => prev.filter((r) => r.id !== id));
 
-    const totalAmount: number = rows.reduce((sum, r) => {
-        return (
-            sum +
-            (parseFloat(r.amt20) || 0) * (parseFloat(r.qty20) || 0) +
-            (parseFloat(r.amt40) || 0) * (parseFloat(r.qty40) || 0)
-        );
-    }, 0);
+    // const totalAmount: number = rows.reduce((sum, r) => {
+    //     return (
+    //         sum +
+    //         (parseFloat(r.amt20) || 0) * (parseFloat(r.qty20) || 0) +
+    //         (parseFloat(r.amt40) || 0) * (parseFloat(r.qty40) || 0)
+    //     );
+    // }, 0);
 
     const handlePrint = async (): Promise<void> => {
         //     if (!previewRef.current) return;
@@ -453,45 +411,59 @@ export default function CreateInvoice() {
                     {/* Form Panel */}
                     {activeTab === "form" && (
                         <div style={{ background: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 2px 16px rgba(30,50,100,0.07)" }}>
-                            <div>
-                                <h2 className="form-section-title">Select Transport Firm:</h2>
-                                <select
-                                    value={selectedFirm}
-                                    onChange={(e) => { setSelectedFirm(e.target.value) }}
-                                    style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
-                                >
-                                    {transportFirm ? transportFirm.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
-                                </select>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                                <div>
+                                    <h2 className="form-section-title">Select Transport Firm:</h2>
+                                    <select
+                                        value={selectedFirm}
+                                        onChange={(e) => { setSelectedFirm(e.target.value) }}
+                                        style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                    >
+                                        {transportFirm ? transportFirm.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
+                                    </select>
+                                </div>
+                                <div>
+                                    <h2 className="form-section-title">Select Client:</h2>
+                                    <select
+                                        value={client}
+                                        onChange={(e) => { setClient(+e.target.value) }}
+                                        style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                    >
+                                        {clientList ? clientList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
+                                    </select>
+                                </div>
                             </div>
-                            <div>
-                                <h2 className="form-section-title">Select Client:</h2>
-                                <select
-                                    value={client}
-                                    onChange={(e) => { setClient(+e.target.value) }}
-                                    style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
-                                >
-                                    {clientList ? clientList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
-                                </select>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                                <div>
+                                    <h2 className="form-section-title">Select Driver:</h2>
+                                    <select
+                                        value={driver}
+                                        onChange={(e) => { setDriver(+e.target.value) }}
+                                        style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                    >
+                                        {driverList ? driverList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
+                                    </select>
+                                </div>
+                                <div>
+                                    <h2 className="form-section-title">Select Trailer:</h2>
+                                    <select
+                                        value={trailer}
+                                        onChange={(e) => { setTrailer(+e.target.value) }}
+                                        style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                    >
+                                        {trailerList ? trailerList.map((data) => <option key={`${data.id}+${data.regNo}`} value={data.id}>{data.regNo}</option>) : ""}
+                                    </select>
+                                </div>
                             </div>
-                            <div>
-                                <h2 className="form-section-title">Select Driver:</h2>
-                                <select
-                                    value={driver}
-                                    onChange={(e) => { setDriver(+e.target.value) }}
-                                    style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
-                                >
-                                    {driverList ? driverList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
-                                </select>
-                            </div>
-                            <div>
-                                <h2 className="form-section-title">Select Trailer:</h2>
-                                <select
-                                    value={trailer}
-                                    onChange={(e) => { setTrailer(+e.target.value) }}
-                                    style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
-                                >
-                                    {trailerList ? trailerList.map((data) => <option key={`${data.id}+${data.regNo}`} value={data.id}>{data.regNo}</option>) : ""}
-                                </select>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                                <div>
+                                    <h2 className="form-section-title">Diesel:</h2>
+                                    <LabeledInput label="" value={headerDetails.diesel} onChange={(value) => { setheaderDetails({ ...headerDetails, diesel: value }) }} placeholder="eg:100" />
+                                </div>
+                                <div>
+                                    <h2 className="form-section-title">Driver Beta:</h2>
+                                    <LabeledInput label="" value={headerDetails.driverBeta} onChange={(value) => { setheaderDetails({ ...headerDetails, driverBeta: value }) }} placeholder="eg:1500" />
+                                </div>
                             </div>
                             {selectedFirm === "2" ? <h2 className="form-section-title">Enter Header Details:</h2> : ""}
                             {selectedFirm === "2" ? <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
