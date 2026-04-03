@@ -1000,3 +1000,26 @@ async function mockFetchInvoices(invoiceList: InvoiceList[], page: number, limit
     totalPages: Math.ceil(filtered.length / limit),
   };
 }
+
+
+// ─── API helpers ──────────────────────────────────────────────────────────────
+
+async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { message?: string }).message ?? "Request failed");
+  }
+  return res.json() as Promise<T>;
+}
+
+const fetchInvoices = (page: number, limit: number, filters: Filters) => {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (filters.driverId) params.set("driverId", filters.driverId);
+  if (filters.trailerId) params.set("trailerId", filters.trailerId);
+  if (filters.clientId) params.set("clientId", filters.clientId);
+  return apiFetch<PaginatedResponse>(`${import.meta.env.VITE_APP_API_URL}/api/invoices/getInvoice?${params.toString()}`);
+};

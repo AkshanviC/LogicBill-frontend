@@ -1,36 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import type { Clients, Drivers, Trailers, InvoiceList, PaginatedResponse, Filters, Invoice, Toast } from "../../interfaces/interfaces";
-
-// ─── API helpers ──────────────────────────────────────────────────────────────
-
-async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error((err as { message?: string }).message ?? "Request failed");
-  }
-  return res.json() as Promise<T>;
-}
-
-const fetchInvoices = (page: number, limit: number, filters: Filters) => {
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (filters.driverId) params.set("driverId", filters.driverId);
-  if (filters.trailerId) params.set("trailerId", filters.trailerId);
-  if (filters.clientId) params.set("clientId", filters.clientId);
-  return apiFetch<PaginatedResponse>(`${import.meta.env.VITE_APP_API_URL}/api/invoices/getInvoice?${params.toString()}`);
-};
+import type { Clients, Drivers, Trailers, InvoiceList, Filters, Invoice, Toast } from "../../interfaces/interfaces";
 
 // const updateInvoice = (id: number, data: Partial<Invoice>) =>
 //   apiFetch<Invoice>(`${import.meta.env.VITE_APP_API_URL}/${id}`, { method: "PUT", body: JSON.stringify(data) });
-
-
-
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
-
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -41,7 +13,7 @@ const IconX = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" 
 const IconChevLeft = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>;
 const IconChevRight = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>;
 const IconFilter = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>;
-
+const IconPrint = () => <svg fill="#000000" width="800px" height="800px" viewBox="-2 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin"><path d='M16 4h1a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-1V9H4v7H3a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1v2h12V4zM6 20v-9h8v9H6zM6 4V0h8v4H6z' /></svg>
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const DetailRow: React.FC<{ label: string; value?: string | number | null; accent?: boolean; full?: boolean }> = ({ label, value, accent, full }) => (
@@ -159,13 +131,10 @@ const EditModal: React.FC<{ invoice: InvoiceList; onClose: () => void; onSave: (
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-
-
 const EMPTY_FILTERS: Filters = { driverId: "", trailerId: "", clientId: "" };
 const LIMIT = 10;
 
-const InvoiceList: React.FC = () => {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+const InvoiceListComponent: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
@@ -181,7 +150,8 @@ const InvoiceList: React.FC = () => {
   const [driverList, setDriverList] = useState<Drivers[]>([]);
   const [trailerList, setTrailerList] = useState<Trailers[]>([]);
   const [clientList, setClientList] = useState<Clients[]>([]);
-  const [invoiceList, setInvoiceList] = useState<InvoiceList[]>([])
+  const [invoiceList, setInvoiceList] = useState<InvoiceList[]>([]);
+  const [filterDate, setFilterDate] = useState<{ from: string; to: string }>({ from: "", to: "" });
   const toastId = React.useRef(0);
 
   const addToast = useCallback((message: string, type: "success" | "error" = "success") => {
@@ -222,6 +192,8 @@ const InvoiceList: React.FC = () => {
       if (filters.driverId) params.set("driverId", filters.driverId);
       if (filters.trailerId) params.set("trailerId", filters.trailerId);
       if (filters.clientId) params.set("clientId", filters.clientId);
+      if (filterDate.from) params.set("dateFrom", filterDate.from);
+      if (filterDate.to) params.set("dateTo", filterDate.to);
       fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/getInvoice??${params.toString()}`).then(res => res.json()).then(res => { setInvoiceList(res.data); setTotal(res.total); setTotalPages(res.totalPages) }).catch(err => console.log(err));
       // Replace with: fetchInvoices(page, LIMIT, filters).then(res => { ... })
 
@@ -234,7 +206,7 @@ const InvoiceList: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, debouncedSearch, filters]);
+  }, [page, debouncedSearch, filters, filterDate]);
   const handleSave = (updated: InvoiceList) => {
     // setInvoices((prev) => prev.map((inv) => (inv.id === updated.id ? updated : inv)));
     setEditInvoice(null);
@@ -326,6 +298,22 @@ const InvoiceList: React.FC = () => {
             ))}
           </select>
 
+          <input
+            className="il-date"
+            type="date"
+            placeholder="mm-dd-yyyy"
+            value={filterDate.from}
+            onChange={(e) => setFilterDate({ ...filterDate, from: e.target.value })}
+          />
+
+          <input
+            className="il-date"
+            type="date"
+            placeholder="dd-mm-yyyy"
+            value={filterDate.to}
+            onChange={(e) => setFilterDate({ ...filterDate, to: e.target.value })}
+          />
+
           {activeFilterCount > 0 && (
             <button className="il-clear-all" onClick={clearFilters}>
               Clear all ({activeFilterCount})
@@ -393,6 +381,7 @@ const InvoiceList: React.FC = () => {
                         <div className="il-actions">
                           <button className="il-btn-icon" title="View" onClick={() => setViewInvoice(inv)}><IconEye /></button>
                           <button className="il-btn-icon" title="Edit" onClick={() => setEditInvoice(inv)}><IconEdit /></button>
+                          <button className="il-btn-icon" title="Edit" onClick={() => setEditInvoice(inv)}><IconPrint /></button>
                         </div>
                       </td>
                     </tr>
@@ -402,7 +391,7 @@ const InvoiceList: React.FC = () => {
             </table>
           </div>
 
-          {!loading && invoices.length > 0 && (
+          {!loading && invoiceList.length > 0 && (
             <div className="il-pagination">
               <span>Showing {(page - 1) * LIMIT + 1}–{Math.min(page * LIMIT, total)} of {total} invoices</span>
               <div className="il-page-btns">
@@ -440,4 +429,4 @@ const InvoiceList: React.FC = () => {
   );
 };
 
-export default InvoiceList;
+export default InvoiceListComponent;

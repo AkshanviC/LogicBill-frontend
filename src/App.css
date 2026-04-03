@@ -532,6 +532,18 @@ body {
   border-color: var(--accent);
 }
 
+.il-date {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 10px 14px 10px 38px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
 /* Filter bar */
 .il-filterbar {
   display: flex;

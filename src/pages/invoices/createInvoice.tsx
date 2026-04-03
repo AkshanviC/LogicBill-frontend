@@ -183,7 +183,8 @@ interface HeaderDetails {
     gst: string,
     pan: string
     diesel: string,
-    driverBeta: string
+    driverBeta: string,
+    advance: string,
 }
 
 const headerDetailsValue: HeaderDetails = {
@@ -196,9 +197,10 @@ const headerDetailsValue: HeaderDetails = {
     pan: "",
     diesel: "",
     driverBeta: "",
+    advance: "",
 }
 
-function InvoicePreview({ date, billNo, rows, totalAmount, previewRef }: InvoicePreviewProps) {
+export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ date, billNo, rows, totalAmount, previewRef }) => {
     const thStyle: React.CSSProperties = { border: "1px solid #ccc", padding: "6px 8px", background: "#f0f0f0", fontWeight: "bold", fontSize: 11, textAlign: "center" };
     const tdStyle: React.CSSProperties = { border: "1px solid #ccc", padding: "6px 8px", fontSize: 11 };
 
@@ -323,17 +325,17 @@ export default function CreateInvoice() {
     const [rows, setRows] = useState<InvoiceRow[]>([defaultRow()]);
     const [activeTab, setActiveTab] = useState<"form" | "preview">("form");
     // const previewRef = useRef<HTMLDivElement>(null);
-    const [selectedFirm, setSelectedFirm] = useState("");
-    const [transportFirm, setTransportFirm] = useState<TransportFirm[]>([{ id: "1", name: "Jayalakshmi" }, { id: "2", name: "sreejith" }])
+    const [selectedFirm, setSelectedFirm] = useState("2");
+    const [transportFirm, _] = useState<TransportFirm[]>([{ id: "1", name: "Jayalakshmi" }, { id: "2", name: "sreejith" }])
     const [headerDetails, setheaderDetails] = useState<HeaderDetails>(headerDetailsValue)
     const updateRow = (id: number, field: keyof InvoiceRow, value: string): void => {
         setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
     };
     const [driverList, setDriverList] = useState<Drivers[]>([]);
     const [trailerList, setTrailerList] = useState<Trailers[]>([]);
-    const [client, setClient] = useState<number>();
-    const [driver, setDriver] = useState<number>();
-    const [trailer, setTrailer] = useState<number>();
+    const [client, setClient] = useState<number>(1);
+    const [driver, setDriver] = useState<number>(1);
+    const [trailer, setTrailer] = useState<number>(1);
     const [clientList, setClientList] = useState<Clients[]>([]);
     useEffect(() => {
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/drivers/`).then(res => res.json()).then(res => setDriverList(res.data)).catch(err => console.error(err));
@@ -411,13 +413,13 @@ export default function CreateInvoice() {
                     {/* Form Panel */}
                     {activeTab === "form" && (
                         <div style={{ background: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 2px 16px rgba(30,50,100,0.07)" }}>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
                                 <div>
                                     <h2 className="form-section-title">Select Transport Firm:</h2>
                                     <select
                                         value={selectedFirm}
                                         onChange={(e) => { setSelectedFirm(e.target.value) }}
-                                        style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                        style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
                                     >
                                         {transportFirm ? transportFirm.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
                                     </select>
@@ -427,19 +429,19 @@ export default function CreateInvoice() {
                                     <select
                                         value={client}
                                         onChange={(e) => { setClient(+e.target.value) }}
-                                        style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                        style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
                                     >
                                         {clientList ? clientList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
                                     </select>
                                 </div>
                             </div>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
                                 <div>
                                     <h2 className="form-section-title">Select Driver:</h2>
                                     <select
                                         value={driver}
                                         onChange={(e) => { setDriver(+e.target.value) }}
-                                        style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                        style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
                                     >
                                         {driverList ? driverList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
                                     </select>
@@ -449,13 +451,13 @@ export default function CreateInvoice() {
                                     <select
                                         value={trailer}
                                         onChange={(e) => { setTrailer(+e.target.value) }}
-                                        style={{ width: "100%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                        style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
                                     >
                                         {trailerList ? trailerList.map((data) => <option key={`${data.id}+${data.regNo}`} value={data.id}>{data.regNo}</option>) : ""}
                                     </select>
                                 </div>
                             </div>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
                                 <div>
                                     <h2 className="form-section-title">Diesel:</h2>
                                     <LabeledInput label="" value={headerDetails.diesel} onChange={(value) => { setheaderDetails({ ...headerDetails, diesel: value }) }} placeholder="eg:100" />
@@ -477,9 +479,9 @@ export default function CreateInvoice() {
                             <div className="gstComp">
                                 <h5>Is GST note reqired?:</h5><input type="checkbox" />
                             </div>
-                            <span style={{ color: "black", fontWeight: 200 }}>(note looks: "GST is Payable under Reverse Charge Mechanism")</span>
+                            <span style={{ color: "black", fontWeight: 200, marginBottom: "20px" }}>(note looks: "GST is Payable under Reverse Charge Mechanism")</span>
 
-                            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#1a2340", marginBottom: 14, borderBottom: "2px solid #e8ecf5", paddingBottom: 10 }}>
+                            <h2 style={{ marginTop: 20, fontSize: 14, fontWeight: 700, color: "#1a2340", marginBottom: 14, borderBottom: "2px solid #e8ecf5", paddingBottom: 10 }}>
                                 Line Items
                             </h2>
 

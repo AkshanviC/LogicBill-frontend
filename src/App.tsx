@@ -5,7 +5,7 @@ import './App.css'
 import AVBInvoice from './pages/invoices/avb'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import CreateInvoice from './pages/invoices/createInvoice';
-import InvoiceList from './pages/invoices/InvoiceList';
+import InvoiceListComponent from './pages/invoices/InvoiceList';
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -20,7 +20,7 @@ function App() {
     },
     {
       path: "/invoiceList",
-      element: <InvoiceList />
+      element: <InvoiceListComponent />
     }
   ])
   return (
