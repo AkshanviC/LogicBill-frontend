@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import type { Drivers, Trailers, Clients, InvoiceRow } from "../../interfaces/interfaces";
+import { useNavigate } from "react-router-dom";
 // ── Types ──────────────────────────────────────────────────────────────────
 
 
@@ -322,11 +323,12 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ date, billNo, ro
 export default function CreateInvoice() {
     // const [date, setDate] = useState<string>("16/04/2025");
     // const [billNo, setBillNo] = useState<string>("17");
+    const navigate = useNavigate();
     const [rows, setRows] = useState<InvoiceRow[]>([defaultRow()]);
-    const [activeTab, setActiveTab] = useState<"form" | "preview">("form");
+    // const [activeTab, setActiveTab] = useState<"form" | "preview">("form");
     // const previewRef = useRef<HTMLDivElement>(null);
     const [selectedFirm, setSelectedFirm] = useState("2");
-    const [transportFirm, _] = useState<TransportFirm[]>([{ id: "1", name: "Jayalakshmi" }, { id: "2", name: "sreejith" }])
+    const [transportFirm, _] = useState<TransportFirm[]>([{ id: "1", name: "Jayalakshmi" }, { id: "2", name: "Sreeji" }])
     const [headerDetails, setheaderDetails] = useState<HeaderDetails>(headerDetailsValue)
     const updateRow = (id: number, field: keyof InvoiceRow, value: string): void => {
         setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
@@ -343,7 +345,7 @@ export default function CreateInvoice() {
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/clients/`).then(res => res.json()).then(res => setClientList(res.data)).catch(err => console.error(err));
     }, [])
     const addRow = (): void => setRows((prev) => [...prev, defaultRow()]);
-
+    const listInvoice = () => navigate("/");
     const removeRow = (id: number): void => setRows((prev) => prev.filter((r) => r.id !== id));
 
     // const totalAmount: number = rows.reduce((sum, r) => {
@@ -389,14 +391,16 @@ export default function CreateInvoice() {
                 <div className="topbar">
                     <div>
                         <h1 className="topbar-title">Create Record</h1>
-                        <p className="topbar-subtitle">sreejit · Export Movement</p>
+                        <p className="topbar-subtitle">Sreeji · Export Movement</p>
                     </div>
                     <div className="topbar-actions">
                         <button
-                            onClick={() => setActiveTab(activeTab === "form" ? "preview" : "form")}
+                            // onClick={() => setActiveTab(activeTab === "form" ? "preview" : "form")}
+                            onClick={listInvoice}
                             className="btn btn-outline"
                         >
-                            {activeTab === "form" ? "👁 Preview Only" : "✏️ Edit"}
+                            {/* {activeTab === "form" ? "👁 Preview Only" : "✏️ Edit"} */}
+                            Invoice List
                         </button>
                         <button
                             onClick={handlePrint}
@@ -411,99 +415,99 @@ export default function CreateInvoice() {
                 {/* Layout */}
                 <div>
                     {/* Form Panel */}
-                    {activeTab === "form" && (
-                        <div style={{ background: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 2px 16px rgba(30,50,100,0.07)" }}>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
-                                <div>
-                                    <h2 className="form-section-title">Select Transport Firm:</h2>
-                                    <select
-                                        value={selectedFirm}
-                                        onChange={(e) => { setSelectedFirm(e.target.value) }}
-                                        style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
-                                    >
-                                        {transportFirm ? transportFirm.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
-                                    </select>
-                                </div>
-                                <div>
-                                    <h2 className="form-section-title">Select Client:</h2>
-                                    <select
-                                        value={client}
-                                        onChange={(e) => { setClient(+e.target.value) }}
-                                        style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
-                                    >
-                                        {clientList ? clientList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
-                                    </select>
-                                </div>
+                    {/* {activeTab === "form" && ( */}
+                    <div style={{ background: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 2px 16px rgba(30,50,100,0.07)" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
+                            <div>
+                                <h2 className="form-section-title">Select Transport Firm:</h2>
+                                <select
+                                    value={selectedFirm}
+                                    onChange={(e) => { setSelectedFirm(e.target.value) }}
+                                    style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                >
+                                    {transportFirm ? transportFirm.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
+                                </select>
                             </div>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
-                                <div>
-                                    <h2 className="form-section-title">Select Driver:</h2>
-                                    <select
-                                        value={driver}
-                                        onChange={(e) => { setDriver(+e.target.value) }}
-                                        style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
-                                    >
-                                        {driverList ? driverList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
-                                    </select>
-                                </div>
-                                <div>
-                                    <h2 className="form-section-title">Select Trailer:</h2>
-                                    <select
-                                        value={trailer}
-                                        onChange={(e) => { setTrailer(+e.target.value) }}
-                                        style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
-                                    >
-                                        {trailerList ? trailerList.map((data) => <option key={`${data.id}+${data.regNo}`} value={data.id}>{data.regNo}</option>) : ""}
-                                    </select>
-                                </div>
+                            <div>
+                                <h2 className="form-section-title">Select Client:</h2>
+                                <select
+                                    value={client}
+                                    onChange={(e) => { setClient(+e.target.value) }}
+                                    style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                >
+                                    {clientList ? clientList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
+                                </select>
                             </div>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
-                                <div>
-                                    <h2 className="form-section-title">Diesel:</h2>
-                                    <LabeledInput label="" value={headerDetails.diesel} onChange={(value) => { setheaderDetails({ ...headerDetails, diesel: value }) }} placeholder="eg:100" />
-                                </div>
-                                <div>
-                                    <h2 className="form-section-title">Driver Beta:</h2>
-                                    <LabeledInput label="" value={headerDetails.driverBeta} onChange={(value) => { setheaderDetails({ ...headerDetails, driverBeta: value }) }} placeholder="eg:1500" />
-                                </div>
-                            </div>
-                            {selectedFirm === "2" ? <h2 className="form-section-title">Enter Header Details:</h2> : ""}
-                            {selectedFirm === "2" ? <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
-                                <LabeledInput label="SAC" value={headerDetails.sac} onChange={(value) => { setheaderDetails({ ...headerDetails, sac: value }) }} placeholder="eg:1a2b3c4d" />
-                                <LabeledInput label="Date" value={headerDetails.date} onChange={(value) => { setheaderDetails({ ...headerDetails, date: value }) }} placeholder="DD-MM-YYYY" />
-                                <LabeledInput label="PO No." value={headerDetails.poNo} onChange={(value) => { setheaderDetails({ ...headerDetails, poNo: +value }) }} type="number" placeholder="e.g. 17" />
-                                <LabeledInput label="Vendor Code" value={headerDetails.vendorCode} onChange={(value) => { setheaderDetails({ ...headerDetails, vendorCode: value }) }} placeholder="e.g. 17" />
-                                <LabeledInput label="PAN" value={headerDetails.pan} onChange={(value) => { setheaderDetails({ ...headerDetails, pan: value }) }} placeholder="e.g. 17" />
-                                <LabeledInput label="Bill No." value={headerDetails.billNo} onChange={(value) => { setheaderDetails({ ...headerDetails, billNo: +value }) }} type="number" placeholder="e.g. 17" />
-                            </div> : ""}
-                            <div className="gstComp">
-                                <h5>Is GST note reqired?:</h5><input type="checkbox" />
-                            </div>
-                            <span style={{ color: "black", fontWeight: 200, marginBottom: "20px" }}>(note looks: "GST is Payable under Reverse Charge Mechanism")</span>
-
-                            <h2 style={{ marginTop: 20, fontSize: 14, fontWeight: 700, color: "#1a2340", marginBottom: 14, borderBottom: "2px solid #e8ecf5", paddingBottom: 10 }}>
-                                Line Items
-                            </h2>
-
-                            {rows.map((row, idx) => (
-                                <RowEditor
-                                    key={row.id}
-                                    row={row}
-                                    index={idx}
-                                    canRemove={rows.length > 1}
-                                    onChange={(field, value) => updateRow(row.id, field, value)}
-                                    onRemove={() => removeRow(row.id)}
-                                />
-                            ))}
-
-                            <button
-                                onClick={addRow}
-                                style={{ width: "100%", padding: 10, borderRadius: 8, border: "2px dashed #b8c8ee", background: "transparent", color: "#2563eb", fontSize: 13, fontWeight: 600, cursor: "pointer", marginTop: 4 }}
-                            >
-                                + Add Row
-                            </button>
                         </div>
-                    )}
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
+                            <div>
+                                <h2 className="form-section-title">Select Driver:</h2>
+                                <select
+                                    value={driver}
+                                    onChange={(e) => { setDriver(+e.target.value) }}
+                                    style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                >
+                                    {driverList ? driverList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
+                                </select>
+                            </div>
+                            <div>
+                                <h2 className="form-section-title">Select Trailer:</h2>
+                                <select
+                                    value={trailer}
+                                    onChange={(e) => { setTrailer(+e.target.value) }}
+                                    style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                >
+                                    {trailerList ? trailerList.map((data) => <option key={`${data.id}+${data.regNo}`} value={data.id}>{data.regNo}</option>) : ""}
+                                </select>
+                            </div>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
+                            <div>
+                                <h2 className="form-section-title">Diesel:</h2>
+                                <LabeledInput label="" value={headerDetails.diesel} onChange={(value) => { setheaderDetails({ ...headerDetails, diesel: value }) }} placeholder="eg:100" />
+                            </div>
+                            <div>
+                                <h2 className="form-section-title">Driver Beta:</h2>
+                                <LabeledInput label="" value={headerDetails.driverBeta} onChange={(value) => { setheaderDetails({ ...headerDetails, driverBeta: value }) }} placeholder="eg:1500" />
+                            </div>
+                        </div>
+                        {selectedFirm === "2" ? <h2 className="form-section-title">Enter Header Details:</h2> : ""}
+                        {selectedFirm === "2" ? <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+                            <LabeledInput label="SAC" value={headerDetails.sac} onChange={(value) => { setheaderDetails({ ...headerDetails, sac: value }) }} placeholder="eg:1a2b3c4d" />
+                            <LabeledInput label="Date" value={headerDetails.date} onChange={(value) => { setheaderDetails({ ...headerDetails, date: value }) }} placeholder="DD-MM-YYYY" />
+                            <LabeledInput label="PO No." value={headerDetails.poNo} onChange={(value) => { setheaderDetails({ ...headerDetails, poNo: +value }) }} type="number" placeholder="e.g. 17" />
+                            <LabeledInput label="Vendor Code" value={headerDetails.vendorCode} onChange={(value) => { setheaderDetails({ ...headerDetails, vendorCode: value }) }} placeholder="e.g. 17" />
+                            <LabeledInput label="PAN" value={headerDetails.pan} onChange={(value) => { setheaderDetails({ ...headerDetails, pan: value }) }} placeholder="e.g. 17" />
+                            <LabeledInput label="Bill No." value={headerDetails.billNo} onChange={(value) => { setheaderDetails({ ...headerDetails, billNo: +value }) }} type="number" placeholder="e.g. 17" />
+                        </div> : ""}
+                        <div className="gstComp">
+                            <h5>Is GST note reqired?:</h5><input type="checkbox" />
+                        </div>
+                        <span style={{ color: "black", fontWeight: 200, marginBottom: "20px" }}>(note looks: "GST is Payable under Reverse Charge Mechanism")</span>
+
+                        <h2 style={{ marginTop: 20, fontSize: 14, fontWeight: 700, color: "#1a2340", marginBottom: 14, borderBottom: "2px solid #e8ecf5", paddingBottom: 10 }}>
+                            Line Items
+                        </h2>
+
+                        {rows.map((row, idx) => (
+                            <RowEditor
+                                key={row.id}
+                                row={row}
+                                index={idx}
+                                canRemove={rows.length > 1}
+                                onChange={(field, value) => updateRow(row.id, field, value)}
+                                onRemove={() => removeRow(row.id)}
+                            />
+                        ))}
+
+                        <button
+                            onClick={addRow}
+                            style={{ width: "100%", padding: 10, borderRadius: 8, border: "2px dashed #b8c8ee", background: "transparent", color: "#2563eb", fontSize: 13, fontWeight: 600, cursor: "pointer", marginTop: 4 }}
+                        >
+                            + Add Row
+                        </button>
+                    </div>
+                    {/* )} */}
 
                     {/* Preview Panel */}
                     {/* <InvoicePreview

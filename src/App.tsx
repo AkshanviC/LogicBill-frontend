@@ -15,11 +15,11 @@ function App() {
       element: <AVBInvoice />,
     },
     {
-      path: "/",
+      path: "/create-invoice",
       element: <CreateInvoice />
     },
     {
-      path: "/invoiceList",
+      path: "/",
       element: <InvoiceListComponent />
     }
   ])
