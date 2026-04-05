@@ -6,6 +6,7 @@ import AVBInvoice from './pages/invoices/avb'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import CreateInvoice from './pages/invoices/createInvoice';
 import InvoiceListComponent from './pages/invoices/InvoiceList';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -25,6 +26,7 @@ function App() {
   ])
   return (
     <>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
       <RouterProvider router={router} />
     </>
   )

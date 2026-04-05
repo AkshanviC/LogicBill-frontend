@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import type { Drivers, Trailers, Clients, InvoiceRow } from "../../interfaces/interfaces";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 // ── Types ──────────────────────────────────────────────────────────────────
 
 
@@ -178,8 +179,8 @@ interface TransportFirm {
 interface HeaderDetails {
     sac: string,
     date: Date | string,
-    billNo: Number | null,
-    poNo: Number | null,
+    billNo: string,
+    pono: string,
     vendorCode: string,
     gst: string,
     pan: string
@@ -189,12 +190,12 @@ interface HeaderDetails {
 }
 
 const headerDetailsValue: HeaderDetails = {
-    sac: "",
+    sac: "996511",
     date: "",
-    billNo: null,
-    poNo: null,
-    vendorCode: "",
-    gst: "",
+    billNo: "",
+    pono: "",
+    vendorCode: "7400668",
+    gst: "33AACPJ1154C2ZH",
     pan: "",
     diesel: "",
     driverBeta: "",
@@ -376,9 +377,11 @@ export default function CreateInvoice() {
         });
         if (response.status === 201) {
             console.log("success", response);
+            toast.success("Invoice created successfully!");
         }
         else {
             console.log("failure");
+            toast.error("Failed to create invoice. Please try again.");
         }
 
     };
@@ -473,12 +476,12 @@ export default function CreateInvoice() {
                         </div>
                         {selectedFirm === "2" ? <h2 className="form-section-title">Enter Header Details:</h2> : ""}
                         {selectedFirm === "2" ? <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
-                            <LabeledInput label="SAC" value={headerDetails.sac} onChange={(value) => { setheaderDetails({ ...headerDetails, sac: value }) }} placeholder="eg:1a2b3c4d" />
-                            <LabeledInput label="Date" value={headerDetails.date} onChange={(value) => { setheaderDetails({ ...headerDetails, date: value }) }} placeholder="DD-MM-YYYY" />
-                            <LabeledInput label="PO No." value={headerDetails.poNo} onChange={(value) => { setheaderDetails({ ...headerDetails, poNo: +value }) }} type="number" placeholder="e.g. 17" />
-                            <LabeledInput label="Vendor Code" value={headerDetails.vendorCode} onChange={(value) => { setheaderDetails({ ...headerDetails, vendorCode: value }) }} placeholder="e.g. 17" />
+                            {/* <LabeledInput label="SAC" value={headerDetails.sac} onChange={(value) => { setheaderDetails({ ...headerDetails, sac: value }) }} placeholder="eg:1a2b3c4d" /> */}
+                            {/* <LabeledInput label="Date" value={headerDetails.date} onChange={(value) => { setheaderDetails({ ...headerDetails, date: value }) }} placeholder="DD-MM-YYYY" /> */}
+                            <LabeledInput label="Purchase Order No." value={headerDetails.pono} onChange={(value) => { setheaderDetails({ ...headerDetails, pono: value }) }} placeholder="e.g. 17" />
+                            {/* <LabeledInput label="Vendor Code" value={headerDetails.vendorCode} onChange={(value) => { setheaderDetails({ ...headerDetails, vendorCode: value }) }} placeholder="e.g. 17" /> */}
                             <LabeledInput label="PAN" value={headerDetails.pan} onChange={(value) => { setheaderDetails({ ...headerDetails, pan: value }) }} placeholder="e.g. 17" />
-                            <LabeledInput label="Bill No." value={headerDetails.billNo} onChange={(value) => { setheaderDetails({ ...headerDetails, billNo: +value }) }} type="number" placeholder="e.g. 17" />
+                            <LabeledInput label="Bill No." value={headerDetails.billNo} onChange={(value) => { setheaderDetails({ ...headerDetails, billNo: value }) }} placeholder="e.g. 17" />
                         </div> : ""}
                         <div className="gstComp">
                             <h5>Is GST note reqired?:</h5><input type="checkbox" />

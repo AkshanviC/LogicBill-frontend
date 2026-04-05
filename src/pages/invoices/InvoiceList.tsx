@@ -1,134 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import type { Clients, Drivers, Trailers, InvoiceList, Filters, Invoice, Toast } from "../../interfaces/interfaces";
+import type { Clients, Drivers, Trailers, InvoiceList, Filters, Toast } from "../../interfaces/interfaces";
 import { useNavigate } from "react-router-dom";
+import { EditModal, ViewModal } from "../../components/invoices";
+import { IconChevLeft, IconChevRight, IconEdit, IconEye, IconFilter, IconPrint, IconSearch, IconX } from "../../assets/Icons.tsx";
 
 // const updateInvoice = (id: number, data: Partial<Invoice>) =>
 //   apiFetch<Invoice>(`${import.meta.env.VITE_APP_API_URL}/${id}`, { method: "PUT", body: JSON.stringify(data) });
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-const IconSearch = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>;
-const IconEye = () => <svg width="48" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>;
-const IconEdit = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>;
-const IconX = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>;
-const IconChevLeft = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>;
-const IconChevRight = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>;
-const IconFilter = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>;
-const IconPrint = () => <svg fill="#000000" width="24px" height="24px" viewBox="-2 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin"><path d='M16 4h1a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-1V9H4v7H3a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1v2h12V4zM6 20v-9h8v9H6zM6 4V0h8v4H6z' /></svg>
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-const DetailRow: React.FC<{ label: string; value?: string | number | null; accent?: boolean; full?: boolean }> = ({ label, value, accent, full }) => (
-  <div className={`il-detail-item${full ? " full" : ""}`}>
-    <div className="il-detail-label">{label}</div>
-    <div className={`il-detail-value${accent ? " accent" : ""}${value === undefined || value === null || value === "" ? " empty" : ""}`}>
-      {value !== undefined && value !== null && value !== "" ? String(value) : "—"}
-    </div>
-  </div>
-);
-
-const ViewModal: React.FC<{ invoice: InvoiceList; onClose: () => void; onEdit: () => void }> = ({ invoice, onClose, onEdit }) => (
-  <div className="il-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-    <div className="il-modal">
-      <div className="il-modal-header">
-        <div className="il-modal-title">Invoice Details <span className="il-modal-tag">#{invoice.id}</span></div>
-        <button className="il-modal-close" onClick={onClose}><IconX /></button>
-      </div>
-      <div className="il-modal-body">
-        <div className="il-detail-grid">
-          <DetailRow label="Bill No" value={invoice.billNo} accent />
-          <DetailRow label="PO No" value={invoice.pono} />
-          <DetailRow label="Vendor Code" value={invoice.vendorCode} />
-          <DetailRow label="SAC" value={invoice.sac} />
-          <DetailRow label="GST No" value={invoice.gstno} />
-          <DetailRow label="PAN" value={invoice.pan} />
-          <DetailRow label="Driver ID" value={invoice.driverId} />
-          <DetailRow label="Trailer ID" value={invoice.trailerId} />
-          <DetailRow label="Client ID" value={invoice.clientId} />
-          <DetailRow label="Transport Firm ID" value={invoice.transportFirmId} />
-          <DetailRow label="Diesel" value={invoice.diesel} />
-          <DetailRow label="Driver Beta" value={invoice.driverBeta} />
-          <DetailRow label="Advance" value={invoice.advance} />
-          <DetailRow label="Date" value={invoice.date ? new Date(invoice.date).toLocaleDateString() : undefined} />
-          <DetailRow label="Template ID" value={invoice.templateId} />
-          <DetailRow label="Created By" value={invoice.createdBy} />
-          {invoice.createdAt && <DetailRow label="Created At" value={new Date(invoice.createdAt).toLocaleString()} full />}
-        </div>
-      </div>
-      <div className="il-modal-footer">
-        <button className="il-btn il-btn-ghost" onClick={onClose}>Close</button>
-        <button className="il-btn il-btn-primary" onClick={onEdit}>Edit Invoice</button>
-      </div>
-    </div>
-  </div>
-);
-
-const EditModal: React.FC<{ invoice: InvoiceList; onClose: () => void; onSave: (u: InvoiceList) => void }> = ({ invoice, onClose, onSave }) => {
-  const [form, setForm] = useState<InvoiceList>({ ...invoice });
-  const [saving, setSaving] = useState(false);
-
-  const set = (key: keyof InvoiceList) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setForm((prev) => ({
-      ...prev,
-      [key]: ["createdBy", "templateId", "transportFirmId", "trailerId", "driverId", "clientId"].includes(key)
-        ? val === "" ? undefined : Number(val)
-        : val,
-    }));
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      // Replace with: await updateInvoice(invoice.id, form);
-      await new Promise((r) => setTimeout(r, 600));
-      onSave(form);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const field = (label: string, key: keyof Invoice, type = "text", full = false) => (
-    <div className={`il-form-group${full ? " full" : ""}`}>
-      <label className="il-form-label">{label}</label>
-      <input className="il-form-input" type={type} value={(form[key] as string | number) ?? ""} onChange={set(key)} placeholder={`Enter ${label.toLowerCase()}`} />
-    </div>
-  );
-
-  return (
-    <div className="il-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="il-modal">
-        <div className="il-modal-header">
-          <div className="il-modal-title">Edit Invoice <span className="il-modal-tag">#{invoice.id}</span></div>
-          <button className="il-modal-close" onClick={onClose}><IconX /></button>
-        </div>
-        <div className="il-modal-body">
-          <div className="il-form-grid">
-            {field("Bill No", "billNo")}
-            {field("PO No", "pono")}
-            {field("Vendor Code", "vendorCode")}
-            {field("SAC", "sac")}
-            {field("GST No", "gstno")}
-            {field("PAN", "pan")}
-            {field("Driver ID", "driverId", "number")}
-            {field("Trailer ID", "trailerId", "number")}
-            {field("Client ID", "clientId", "number")}
-            {field("Transport Firm ID", "transportFirmId", "number")}
-            {field("Diesel", "diesel")}
-            {field("Driver Beta", "driverBeta")}
-            {field("Advance", "advance")}
-            {field("Date", "date", "date", true)}
-          </div>
-        </div>
-        <div className="il-modal-footer">
-          <button className="il-btn il-btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="il-btn il-btn-primary" onClick={handleSave} disabled={saving}>
-            {saving ? "Saving…" : "Save Changes"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -359,7 +236,7 @@ const InvoiceListComponent: React.FC = () => {
                   <th>Trailer</th>
                   <th>Client</th>
                   <th>Diesel</th>
-                  <th>Advance</th>
+                  {/* <th>Advance</th> */}
                   <th>Date</th>
                   <th>Actions</th>
                 </tr>
@@ -382,13 +259,13 @@ const InvoiceListComponent: React.FC = () => {
                       <td>{inv.trailerId ? <span className="il-id-badge trailer">{inv.trailer?.regNo}</span> : "—"}</td>
                       <td>{inv.clientId ? <span className="il-id-badge client" >{inv.client?.name}</span> : "—"}</td>
                       <td>{inv.diesel ?? "—"}</td>
-                      <td>{inv.advance ?? "—"}</td>
+                      {/* <td>{inv.advance ?? "—"}</td> */}
                       <td>{inv.date ? new Date(inv.date).toLocaleDateString() : "—"}</td>
                       <td>
                         <div className="il-actions">
                           <button className="il-btn-icon" title="View" onClick={() => setViewInvoice(inv)}><IconEye /></button>
                           <button className="il-btn-icon" title="Edit" onClick={() => setEditInvoice(inv)}><IconEdit /></button>
-                          <button className="il-btn-icon" title="Edit" onClick={() => setEditInvoice(inv)}><IconPrint /></button>
+                          <button className="il-btn-icon" title="Print" onClick={() => setEditInvoice(inv)}><IconPrint /></button>
                         </div>
                       </td>
                     </tr>
