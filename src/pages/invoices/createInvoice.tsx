@@ -120,10 +120,10 @@ function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-                <LabeledInput label="Lr No:" value={row.lrNo} onChange={(v) => onChange("lrNo", v)} placeholder="e.g. TN05AK4833" />
-                <LabeledInput label="Doc No:" value={row.docNo} onChange={(v) => onChange("docNo", v)} placeholder="e.g. ELNU2251010" />
-                <LabeledInput label="Shipment No:" value={row.shipmentNo} onChange={(v) => onChange("shipmentNo", v)} placeholder="e.g. ELNU2251010" />
-                <LabeledInput label="Others:" value={row.others} onChange={(v) => onChange("others", v)} placeholder="e.g. ELNU2251010" />
+                <LabeledInput label="Lr No:" value={row.lrNo} onChange={(v) => onChange("lrNo", v)} placeholder="e.g. 2876 / 13.06.2025" />
+                <LabeledInput label="Doc No:" value={row.docNo} onChange={(v) => onChange("docNo", v)} placeholder="e.g. 74861410" />
+                <LabeledInput label="Shipment No:" value={row.shipmentNo} onChange={(v) => onChange("shipmentNo", v)} placeholder="e.g. 6100197528" />
+                <LabeledInput label="Others:" value={row.others} onChange={(v) => onChange("others", v)} placeholder="e.g. By 40 FT Trailers — Details Attached" />
             </div>
 
             <h2 className="form-section-title">Other columns:</h2>
@@ -137,7 +137,7 @@ function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps
                 <LabeledInput label="From" value={row.from} onChange={(v) => onChange("from", v)} placeholder="e.g. ZIRCON MT PLOT (14.04.25)" />
                 <LabeledInput label="To" value={row.to} onChange={(v) => onChange("to", v)} placeholder="e.g. KATTUPALLI PORT" />
                 {/* <LabeledInput label="Trailer No:" value={row.trailerNo} onChange={(v) => onChange("trailerNo", v)} placeholder="e.g. KATTUPALLI PORT (16.04.25)" /> */}
-                <LabeledInput label="Invoice No:" value={row.invoiceNo} onChange={(v) => onChange("invoiceNo", v)} placeholder="e.g. A S SHIPPING NUMBAL CFS" />
+                <LabeledInput label="Invoice No:" value={row.invoiceNo} onChange={(v) => onChange("invoiceNo", v)} placeholder="e.g. 74817294" />
                 {/* <div>
                     <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "#7c8db0", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                         Container Size
