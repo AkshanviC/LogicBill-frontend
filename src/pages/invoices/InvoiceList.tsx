@@ -35,6 +35,17 @@ const InvoiceListComponent: React.FC = () => {
   const create = () => {
     navigate("/create-invoice");
   }
+  const handleGenerate = (id: number) => {
+    fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/generate/${id}`).then(res => res.blob()).then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice_${id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }).catch(err => console.error(err));
+  }
   const addToast = useCallback((message: string, type: "success" | "error" = "success") => {
     const id = ++toastId.current;
     setToasts((t) => [...t, { id, message, type }]);
@@ -265,7 +276,7 @@ const InvoiceListComponent: React.FC = () => {
                         <div className="il-actions">
                           <button className="il-btn-icon" title="View" onClick={() => setViewInvoice(inv)}><IconEye /></button>
                           <button className="il-btn-icon" title="Edit" onClick={() => setEditInvoice(inv)}><IconEdit /></button>
-                          <button className="il-btn-icon" title="Print" onClick={() => setEditInvoice(inv)}><IconPrint /></button>
+                          <button className="il-btn-icon" title="Print" onClick={() => handleGenerate(inv.id)}><IconPrint /></button>
                         </div>
                       </td>
                     </tr>

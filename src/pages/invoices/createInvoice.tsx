@@ -45,8 +45,8 @@ const defaultRow = (): InvoiceRow => ({
     qty40: "",
     amt20: "",
     amt40: "",
-    from: "",
-    to: "",
+    fromAddress: "",
+    toAddress: "",
     trailerNo: "",
     lrNo: "",
     invoiceNo: "",
@@ -134,8 +134,8 @@ function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps
                 <LabeledInput label="Amount (Rs.):" value={row.amount} onChange={(v) => onChange("amount", v)} placeholder="0" type="number" />
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-                <LabeledInput label="From" value={row.from} onChange={(v) => onChange("from", v)} placeholder="e.g. ZIRCON MT PLOT (14.04.25)" />
-                <LabeledInput label="To" value={row.to} onChange={(v) => onChange("to", v)} placeholder="e.g. KATTUPALLI PORT" />
+                <LabeledInput label="From" value={row.fromAddress} onChange={(v) => onChange("fromAddress", v)} placeholder="e.g. ZIRCON MT PLOT (14.04.25)" />
+                <LabeledInput label="To" value={row.toAddress} onChange={(v) => onChange("toAddress", v)} placeholder="e.g. KATTUPALLI PORT" />
                 {/* <LabeledInput label="Trailer No:" value={row.trailerNo} onChange={(v) => onChange("trailerNo", v)} placeholder="e.g. KATTUPALLI PORT (16.04.25)" /> */}
                 <LabeledInput label="Invoice No:" value={row.invoiceNo} onChange={(v) => onChange("invoiceNo", v)} placeholder="e.g. 74817294" />
                 {/* <div>

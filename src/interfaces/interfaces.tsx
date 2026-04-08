@@ -78,8 +78,8 @@ interface Filters {
 interface Toast { id: number; message: string; type: "success" | "error"; }
 
 interface InvoiceRow {
-    from: string;
-    to: string;
+    fromAddress: string;
+    toAddress: string;
     trailerNo: string;
     lrNo: string;
     invoiceNo: string;
