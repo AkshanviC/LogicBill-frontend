@@ -3,7 +3,6 @@ import type { Clients, Drivers, Trailers, InvoiceList, Filters, Toast } from "..
 import { useNavigate } from "react-router-dom";
 import { EditModal, ViewModal } from "../../components/invoices";
 import { IconChevLeft, IconChevRight, IconEdit, IconEye, IconFilter, IconPrint, IconSearch, IconX } from "../../assets/Icons.tsx";
-import Spinner from "../../components/spinner.js";
 // const updateInvoice = (id: number, data: Partial<Invoice>) =>
 //   apiFetch<Invoice>(`${import.meta.env.VITE_APP_API_URL}/${id}`, { method: "PUT", body: JSON.stringify(data) });
 
