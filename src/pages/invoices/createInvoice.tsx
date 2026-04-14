@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import type { Drivers, Trailers, Clients, InvoiceRow } from "../../interfaces/interfaces";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Spinner from "../../components/spinner";
 // ── Types ──────────────────────────────────────────────────────────────────
 
 
@@ -340,6 +341,7 @@ export default function CreateInvoice() {
     const [driver, setDriver] = useState<number>(1);
     const [trailer, setTrailer] = useState<number>(1);
     const [clientList, setClientList] = useState<Clients[]>([]);
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/drivers/`).then(res => res.json()).then(res => setDriverList(res.data)).catch(err => console.error(err));
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/trailers/`).then(res => res.json()).then(res => setTrailerList(res.data)).catch(err => console.error(err));
@@ -368,6 +370,8 @@ export default function CreateInvoice() {
         // </style></head><body>${content}</body></html>`);
         //     win.document.close();
         //     win.print();
+        if (loading) return;
+        setLoading(true);
         const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/`, {
             method: "POST",
             headers: {
@@ -378,6 +382,8 @@ export default function CreateInvoice() {
         if (response.status === 201) {
             console.log("success", response);
             toast.success("Invoice created successfully!");
+            setLoading(false);
+            setheaderDetails(headerDetailsValue);
         }
         else {
             console.log("failure");
@@ -410,7 +416,7 @@ export default function CreateInvoice() {
                             className="btn btn-primary"
                         >
                             {/* 🖨 Print / Save */}
-                            Create
+                            {loading ? <Spinner /> : "Create"}
                         </button>
                     </div>
                 </div>

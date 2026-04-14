@@ -3,7 +3,7 @@ import type { Clients, Drivers, Trailers, InvoiceList, Filters, Toast } from "..
 import { useNavigate } from "react-router-dom";
 import { EditModal, ViewModal } from "../../components/invoices";
 import { IconChevLeft, IconChevRight, IconEdit, IconEye, IconFilter, IconPrint, IconSearch, IconX } from "../../assets/Icons.tsx";
-
+import Spinner from "../../components/spinner.js";
 // const updateInvoice = (id: number, data: Partial<Invoice>) =>
 //   apiFetch<Invoice>(`${import.meta.env.VITE_APP_API_URL}/${id}`, { method: "PUT", body: JSON.stringify(data) });
 
@@ -31,11 +31,14 @@ const InvoiceListComponent: React.FC = () => {
   const [clientList, setClientList] = useState<Clients[]>([]);
   const [invoiceList, setInvoiceList] = useState<InvoiceList[]>([]);
   const [filterDate, setFilterDate] = useState<{ from: string; to: string }>({ from: "", to: "" });
+  const [printLoad, setPrintLoad] = useState(false);
   const toastId = React.useRef(0);
   const create = () => {
     navigate("/create-invoice");
   }
   const handleGenerate = (id: number) => {
+    if (printLoad) return;
+    setPrintLoad(true);
     fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/generate/${id}`).then(res => res.blob()).then(blob => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -44,7 +47,8 @@ const InvoiceListComponent: React.FC = () => {
       document.body.appendChild(a);
       a.click();
       a.remove();
-    }).catch(err => console.error(err));
+      window.URL.revokeObjectURL(url);
+    }).catch(err => console.error(err)).finally(() => setPrintLoad(false));
   }
   const addToast = useCallback((message: string, type: "success" | "error" = "success") => {
     const id = ++toastId.current;
@@ -276,7 +280,9 @@ const InvoiceListComponent: React.FC = () => {
                         <div className="il-actions">
                           <button className="il-btn-icon" title="View" onClick={() => setViewInvoice(inv)}><IconEye /></button>
                           <button className="il-btn-icon" title="Edit" onClick={() => setEditInvoice(inv)}><IconEdit /></button>
-                          <button className="il-btn-icon" title="Print" onClick={() => handleGenerate(inv.id)}><IconPrint /></button>
+                          <button disabled={printLoad} className="il-btn-icon" title="Print" onClick={() => handleGenerate(inv.id)}>
+                            {<IconPrint />}
+                          </button>
                         </div>
                       </td>
                     </tr>
