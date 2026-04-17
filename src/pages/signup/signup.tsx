@@ -76,6 +76,7 @@ export default function CreateUser() {
                     email: form.email,
                     mobile: form.mobile,
                     password: form.password,
+                    role: form.role,
                 }),
             });
             const data = await res.json();
