@@ -348,7 +348,7 @@ export default function CreateInvoice() {
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/clients/`).then(res => res.json()).then(res => setClientList(res.data)).catch(err => console.error(err));
     }, [])
     const addRow = (): void => setRows((prev) => [...prev, defaultRow()]);
-    const listInvoice = () => navigate("/");
+    const listInvoice = () => navigate("/invoiceList");
     const removeRow = (id: number): void => setRows((prev) => prev.filter((r) => r.id !== id));
 
     // const totalAmount: number = rows.reduce((sum, r) => {

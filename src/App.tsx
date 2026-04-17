@@ -7,6 +7,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import CreateInvoice from './pages/invoices/createInvoice';
 import InvoiceListComponent from './pages/invoices/InvoiceList';
 import { ToastContainer } from 'react-toastify';
+import CreateUser from './pages/signup/signup';
+import AuthScreens from './pages/signin/login';
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -20,8 +22,16 @@ function App() {
       element: <CreateInvoice />
     },
     {
-      path: "/",
+      path: "/invoiceList",
       element: <InvoiceListComponent />
+    },
+    {
+      path: "/create-user",
+      element: <CreateUser />
+    },
+    {
+      path: "/",
+      element: <AuthScreens />
     }
   ])
   return (
