@@ -105,6 +105,10 @@ const styles: Record<string, React.CSSProperties> = {
         flexDirection: "column",
         gap: "6px",
     },
+    flexRow: {
+        display: "flex",
+        gap: "1rem",
+    },
     label: {
         fontSize: "13px",
         fontWeight: 500,

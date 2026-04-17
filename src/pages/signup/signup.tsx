@@ -168,14 +168,14 @@ export default function CreateUser() {
                     {mode === "signup" && (
                         <Field label="Confirm Password" name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="••••••••" />
                     )}
-                    <div style={styles.fieldGroup}>
+                    <div style={styles.flexRow}>
                         <label style={styles.label}>Is Admin</label>
                         <input
                             style={styles.input}
                             name={"isAdmin"}
                             type={"checkbox"}
                             checked={form.role === 1}
-                            onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.checked ? 2 : 1 }))}
+                            onChange={(e) => { setForm((prev) => ({ ...prev, role: e.target.checked ? 1 : 2 })); console.log(e.target.checked, "lol") }}
                         />
                     </div>
                 </div>
