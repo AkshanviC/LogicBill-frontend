@@ -112,7 +112,7 @@ export default function AuthScreens() {
                             <path d="M10 16H18" stroke="#e8c547" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                     </div>
-                    <span style={styles.brandName}>Apex</span>
+                    <span style={styles.brandName}>Logic Bill</span>
                 </div>
 
                 {/* Toggle Tabs */}

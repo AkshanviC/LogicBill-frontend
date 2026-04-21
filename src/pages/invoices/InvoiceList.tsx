@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import type { Clients, Drivers, Trailers, InvoiceList, Filters, Toast } from "../../interfaces/interfaces";
 import { useNavigate } from "react-router-dom";
 import { EditModal, ViewModal } from "../../components/invoices";
@@ -32,9 +32,20 @@ const InvoiceListComponent: React.FC = () => {
   const [filterDate, setFilterDate] = useState<{ from: string; to: string }>({ from: "", to: "" });
   const [printLoad, setPrintLoad] = useState(false);
   const toastId = React.useRef(0);
-  const create = () => {
-    navigate("/create-invoice");
-  }
+  // state
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // close on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   const handleGenerate = (id: number) => {
     if (printLoad) return;
     setPrintLoad(true);
@@ -154,8 +165,49 @@ const InvoiceListComponent: React.FC = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div>
+          {/* <div>
             <button className="il-btn il-btn-primary" onClick={create}>Create Invoice</button>
+          </div> */}
+          {/* // replace your button with this */}
+          <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
+            <button
+              className="il-btn il-btn-primary"
+              onClick={() => setDropdownOpen(prev => !prev)}
+            >
+              Create ▾
+            </button>
+
+            {dropdownOpen && (
+              <div style={{
+                position: 'absolute',
+                top: '110%',
+                left: 0,
+                background: '#fff',
+                border: '1px solid #e0e0e0',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                minWidth: '160px',
+                zIndex: 1000,
+                overflow: 'hidden',
+              }}>
+                <div
+                  onClick={() => { navigate('/create-invoice'); setDropdownOpen(false); }}
+                  style={{ padding: '10px 16px', cursor: 'pointer', fontSize: '14px', color: 'black' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#3b81fa')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
+                >
+                  Create Invoice
+                </div>
+                <div
+                  onClick={() => { navigate('/create-user'); setDropdownOpen(false); }}
+                  style={{ padding: '10px 16px', cursor: 'pointer', fontSize: '14px', color: 'black' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#3b81fa')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
+                >
+                  Create User
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
