@@ -9,25 +9,26 @@ import InvoiceListComponent from './pages/invoices/InvoiceList';
 import { ToastContainer } from 'react-toastify';
 import CreateUser from './pages/signup/signup';
 import AuthScreens from './pages/signin/login';
+import ProtectedRoute from './protectedRoutes';
 
 function App() {
   // const [count, setCount] = useState(0)
   const router = createBrowserRouter([
     {
       path: "/avb",
-      element: <AVBInvoice />,
+      element: <ProtectedRoute><AVBInvoice /></ProtectedRoute>,
     },
     {
       path: "/create-invoice",
-      element: <CreateInvoice />
+      element: <ProtectedRoute><CreateInvoice /></ProtectedRoute>,
     },
     {
       path: "/invoiceList",
-      element: <InvoiceListComponent />
+      element: <ProtectedRoute><InvoiceListComponent /></ProtectedRoute>
     },
     {
       path: "/create-user",
-      element: <CreateUser />
+      element: <ProtectedRoute><CreateUser /></ProtectedRoute>
     },
     {
       path: "/",
