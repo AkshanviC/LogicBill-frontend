@@ -35,7 +35,33 @@ const InvoiceListComponent: React.FC = () => {
   // state
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const isAllSelected = invoiceList.length > 0 && invoiceList.every(inv => selectedIds.has(inv.id));
+  const isIndeterminate = invoiceList.some(inv => selectedIds.has(inv.id)) && !isAllSelected;
 
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        invoiceList.forEach(inv => next.delete(inv.id));
+        return next;
+      });
+    } else {
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        invoiceList.forEach(inv => next.add(inv.id));
+        return next;
+      });
+    }
+  };
+
+  const handleSelectRow = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
   // close on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -305,6 +331,14 @@ const InvoiceListComponent: React.FC = () => {
                   {/* <th>Advance</th> */}
                   <th>Date</th>
                   <th>Actions</th>
+                  <th>
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      ref={el => { if (el) el.indeterminate = isIndeterminate; }}
+                      onChange={handleSelectAll}
+                    />
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -335,6 +369,13 @@ const InvoiceListComponent: React.FC = () => {
                             {<IconPrint />}
                           </button>
                         </div>
+                      </td>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(inv.id)}
+                          onChange={() => handleSelectRow(inv.id)}
+                        />
                       </td>
                     </tr>
                   ))

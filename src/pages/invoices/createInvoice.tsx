@@ -330,7 +330,7 @@ export default function CreateInvoice() {
     // const [activeTab, setActiveTab] = useState<"form" | "preview">("form");
     // const previewRef = useRef<HTMLDivElement>(null);
     const [selectedFirm, setSelectedFirm] = useState("2");
-    const [transportFirm, _] = useState<TransportFirm[]>([{ id: "1", name: "Jayalakshmi" }, { id: "2", name: "Sreeji" }])
+    const [transportFirm, setTransportFirm] = useState<TransportFirm[]>([{ id: "1", name: "Jayalakshmi" }, { id: "2", name: "Sreeji" }])
     const [headerDetails, setheaderDetails] = useState<HeaderDetails>(headerDetailsValue)
     const updateRow = (id: number, field: keyof InvoiceRow, value: string): void => {
         setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
@@ -346,6 +346,7 @@ export default function CreateInvoice() {
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/drivers/`).then(res => res.json()).then(res => setDriverList(res.data)).catch(err => console.error(err));
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/trailers/`).then(res => res.json()).then(res => setTrailerList(res.data)).catch(err => console.error(err));
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/clients/`).then(res => res.json()).then(res => setClientList(res.data)).catch(err => console.error(err));
+        fetch(`${import.meta.env.VITE_APP_API_URL}/api/transportfirms/`).then(res => res.json()).then(res => { setTransportFirm(res.data); setSelectedFirm(res.data[0]?.id || ""); }).catch(err => console.error(err));
     }, [])
     const addRow = (): void => setRows((prev) => [...prev, defaultRow()]);
     const listInvoice = () => navigate("/invoiceList");
