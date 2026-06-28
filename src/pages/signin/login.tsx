@@ -45,6 +45,7 @@ export default function AuthScreens() {
             const data = await res.json();
             console.log("Sign in response:", data);
             localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
             if (!res.ok) throw new Error(data.message || "Sign in failed.");
             navigate("/invoiceList");
             // setSuccess(`Welcome back! Token: ${data.token?.slice(0, 20)}...`);

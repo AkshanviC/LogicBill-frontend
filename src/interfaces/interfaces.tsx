@@ -73,6 +73,7 @@ interface Filters {
     driverId: string;
     trailerId: string;
     clientId: string;
+    addressId: string;
 }
 
 interface Toast { id: number; message: string; type: "success" | "error"; }
@@ -80,6 +81,7 @@ interface Toast { id: number; message: string; type: "success" | "error"; }
 interface InvoiceRow {
     fromAddress: string;
     toAddress: string;
+    fromToId: number | string;
     trailerNo: string;
     lrNo: string;
     invoiceNo: string;
@@ -107,5 +109,10 @@ interface InvoiceRow {
     cgst: number;
     sgst: number;
 }
-
-export type { Clients, Drivers, Trailers, InvoiceList, PaginatedResponse, Filters, Invoice, Toast, InvoiceRow }
+interface Address {
+    id: number;
+    from: string;
+    to: string;
+    clientId: number;
+}
+export type { Clients, Drivers, Trailers, InvoiceList, PaginatedResponse, Filters, Invoice, Toast, InvoiceRow, Address }

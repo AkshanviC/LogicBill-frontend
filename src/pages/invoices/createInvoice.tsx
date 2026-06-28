@@ -4,6 +4,8 @@ import type { Drivers, Trailers, Clients, InvoiceRow } from "../../interfaces/in
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Spinner from "../../components/spinner";
+import { AddAddressModal } from "../../components/invoices";
+import "./createInvoice/createInvoice.css"
 // ── Types ──────────────────────────────────────────────────────────────────
 
 
@@ -62,6 +64,7 @@ const defaultRow = (): InvoiceRow => ({
     loadingCharge: 0,
     cgst: 0,
     sgst: 0,
+    fromToId: 1,
 });
 
 // ── Sub-components ─────────────────────────────────────────────────────────
@@ -97,11 +100,12 @@ interface RowEditorProps {
     row: InvoiceRow;
     index: number;
     canRemove: boolean;
-    onChange: (field: keyof InvoiceRow, value: string) => void;
+    onChange: (field: keyof InvoiceRow, value: string | number) => void;
     onRemove: () => void;
+    //address: { id: number; from: string, to: string, clientId: number, created_at: string, updated_at: string }[] | [];
 }
 
-function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps) {
+function RowEditor({ row, index, canRemove, onChange, onRemove, }: RowEditorProps) {
     return (
         <div style={{ background: "#f5f8ff", border: "1.5px solid #dde6f8", borderRadius: 10, padding: 16, marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
@@ -135,8 +139,9 @@ function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps
                 <LabeledInput label="Amount (Rs.):" value={row.amount} onChange={(v) => onChange("amount", v)} placeholder="0" type="number" />
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-                <LabeledInput label="From" value={row.fromAddress} onChange={(v) => onChange("fromAddress", v)} placeholder="e.g. ZIRCON MT PLOT (14.04.25)" />
-                <LabeledInput label="To" value={row.toAddress} onChange={(v) => onChange("toAddress", v)} placeholder="e.g. KATTUPALLI PORT" />
+                {/* <LabeledInput label="From" value={row.fromAddress} onChange={(v) => onChange("fromAddress", v)} placeholder="e.g. ZIRCON MT PLOT (14.04.25)" /> */}
+                {/* <LabeledInput label="To" value={row.toAddress} onChange={(v) => onChange("toAddress", v)} placeholder="e.g. KATTUPALLI PORT" /> */}
+
                 {/* <LabeledInput label="Trailer No:" value={row.trailerNo} onChange={(v) => onChange("trailerNo", v)} placeholder="e.g. KATTUPALLI PORT (16.04.25)" /> */}
                 <LabeledInput label="Invoice No:" value={row.invoiceNo} onChange={(v) => onChange("invoiceNo", v)} placeholder="e.g. 74817294" />
                 {/* <div>
@@ -151,6 +156,18 @@ function RowEditor({ row, index, canRemove, onChange, onRemove }: RowEditorProps
                         {CONTAINER_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                 </div> */}
+                {/* <div className="from-to-div">
+                    <select id={`from-to-select-${row.id}`}
+                        style={{ display: "block", fontSize: 10, fontWeight: 700, color: "#7c8db0", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}
+                        name={`from-to-select-${row.id}`} className="from-to-select" value={row.fromToId} onChange={(e) => onChange("fromToId", parseInt(e.target.value))}>
+                        {address?.map((a) => (
+                            <option key={a.id} value={a.id}>
+                                From: {a.from} To: {a.to}
+                            </option>
+                        ))}
+                    </select>
+                    <button className="from-to-button" onClick={() => onChange("fromToId", 0)}>Add Address</button> */}
+                {/* </div> */}
             </div>
             <h2 className="form-section-title">Addon Rows:</h2>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10 }}>
@@ -188,6 +205,7 @@ interface HeaderDetails {
     diesel: string,
     driverBeta: string,
     advance: string,
+    ewayBillNo?: string,
 }
 
 const headerDetailsValue: HeaderDetails = {
@@ -332,7 +350,19 @@ export default function CreateInvoice() {
     const [selectedFirm, setSelectedFirm] = useState("2");
     const [transportFirm, setTransportFirm] = useState<TransportFirm[]>([{ id: "1", name: "Jayalakshmi" }, { id: "2", name: "Sreeji" }])
     const [headerDetails, setheaderDetails] = useState<HeaderDetails>(headerDetailsValue)
-    const updateRow = (id: number, field: keyof InvoiceRow, value: string): void => {
+    const updateRow = (id: number, field: keyof InvoiceRow, value: string | number): void => {
+        console.log("Updating row", id, field, value);
+        if (field === "fromToId") {
+            if (value === 0 || value === "0") {
+                setAddressModalOpen(true);
+                return;
+            }
+            const selectedAddress = address.find(a => a.id === value);
+            if (selectedAddress) {
+                setRows((prev) => prev.map((r) => r.id === id ? { ...r, fromToId: value } : r));
+                return;
+            }
+        }
         setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
     };
     const [driverList, setDriverList] = useState<Drivers[]>([]);
@@ -342,15 +372,52 @@ export default function CreateInvoice() {
     const [trailer, setTrailer] = useState<number>(1);
     const [clientList, setClientList] = useState<Clients[]>([]);
     const [loading, setLoading] = useState(false);
+    const [addressModalOpen, setAddressModalOpen] = useState(false);
+    const [from, setFrom] = useState("");
+    const [to, setTo] = useState("");
+    const [address, setAddress] = useState<{ id: number, from: string, to: string, clientId: number, created_at: string, updated_at: string }[]>([]);
+    const [clientForAddress, setClientForAddress] = useState<number>(1);
+    const [selectedAddess, setSelectedAddress] = useState<number>(0);
+
     useEffect(() => {
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/drivers/`).then(res => res.json()).then(res => setDriverList(res.data)).catch(err => console.error(err));
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/trailers/`).then(res => res.json()).then(res => setTrailerList(res.data)).catch(err => console.error(err));
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/clients/`).then(res => res.json()).then(res => setClientList(res.data)).catch(err => console.error(err));
-        fetch(`${import.meta.env.VITE_APP_API_URL}/api/transportfirms/`).then(res => res.json()).then(res => { setTransportFirm(res.data); setSelectedFirm(res.data[0]?.id || ""); }).catch(err => console.error(err));
-    }, [])
+        fetch(`${import.meta.env.VITE_APP_API_URL}/api/transport-firms/`).then(res => res.json()).then(res => { setTransportFirm(res); setSelectedFirm(res[0]?.id || ""); }).catch(err => console.error(err));
+    }, []);
+
+    useEffect(() => {
+        if (client) {
+            fetch(`${import.meta.env.VITE_APP_API_URL}/api/addresses/all?clientId=${client}`).then(res => res.json()).then(res => { setAddress(res); }).catch(err => console.error(err));
+        }
+    }, [client]);
+
     const addRow = (): void => setRows((prev) => [...prev, defaultRow()]);
     const listInvoice = () => navigate("/invoiceList");
     const removeRow = (id: number): void => setRows((prev) => prev.filter((r) => r.id !== id));
+    const onSave = async (from: string, to: string): Promise<void> => {
+        setLoading(true);
+        try {
+            await fetch(`${import.meta.env.VITE_APP_API_URL}/api/addresses/create`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ from, to, clientId: clientForAddress })
+            });
+        } finally {
+            setLoading(false);
+            setAddressModalOpen(false);
+            setFrom("");
+            setTo("");
+        }
+    }
+
+    const onClose = () => {
+        setAddressModalOpen(false);
+        setFrom("");
+        setTo("");
+    }
 
     // const totalAmount: number = rows.reduce((sum, r) => {
     //     return (
@@ -371,26 +438,35 @@ export default function CreateInvoice() {
         // </style></head><body>${content}</body></html>`);
         //     win.document.close();
         //     win.print();
+        if (selectedAddess === 0) {
+            toast.error("Please select an address before creating the invoice.");
+            return;
+        }
         if (loading) return;
         setLoading(true);
-        const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json", // This is the missing piece
-            },
-            body: JSON.stringify({ invoiceRows: rows, invoices: { createdBy: localStorage.getItem("userId") || 1, templateId: 1, transportFirmId: 1, driverId: driver, trailerId: trailer, clientId: client, ...headerDetails } })
-        });
-        if (response.status === 201) {
-            console.log("success", response);
-            toast.success("Invoice created successfully!");
-            setLoading(false);
-            setheaderDetails(headerDetailsValue);
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json", // This is the missing piece
+                },
+                body: JSON.stringify({ invoiceRows: rows, invoices: { createdBy: localStorage.getItem("userId") || 1, templateId: 1, transportFirmId: 1, driverId: driver, trailerId: trailer, clientId: client, ...headerDetails, addressId: selectedAddess } })
+            });
+            if (response.status === 201) {
+                console.log("success", response);
+                toast.success("Invoice created successfully!");
+                setLoading(false);
+                setheaderDetails(headerDetailsValue);
+            }
         }
-        else {
+        catch (error) {
             console.log("failure");
             toast.error("Failed to create invoice. Please try again.");
         }
-
+        finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -415,6 +491,7 @@ export default function CreateInvoice() {
                         <button
                             onClick={handlePrint}
                             className="btn btn-primary"
+                            disabled={loading}
                         >
                             {/* 🖨 Print / Save */}
                             {loading ? <Spinner /> : "Create"}
@@ -470,6 +547,20 @@ export default function CreateInvoice() {
                                     {trailerList ? trailerList.map((data) => <option key={`${data.id}+${data.regNo}`} value={data.id}>{data.regNo}</option>) : ""}
                                 </select>
                             </div>
+                            <div>
+                                <h2 className="form-section-title">Select Address:</h2>
+                                <select id={`from-to-select`}
+                                    name={`from-to-select-`} className="from-to-select" value={selectedAddess} onChange={(e) => setSelectedAddress(parseInt(e.target.value))}
+                                    style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}>
+                                    <option value={0}>--Select Address--</option>
+                                    {address?.map((a) => (
+                                        <option key={a.id} value={a.id}>
+                                            From: {a.from} To: {a.to}
+                                        </option>
+                                    ))}
+                                </select>
+                                <button className="from-to-button" onClick={() => setAddressModalOpen(true)}>Add Address</button>
+                            </div>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
                             <div>
@@ -489,7 +580,9 @@ export default function CreateInvoice() {
                             {/* <LabeledInput label="Vendor Code" value={headerDetails.vendorCode} onChange={(value) => { setheaderDetails({ ...headerDetails, vendorCode: value }) }} placeholder="e.g. 17" /> */}
                             <LabeledInput label="PAN" value={headerDetails.pan} onChange={(value) => { setheaderDetails({ ...headerDetails, pan: value }) }} placeholder="e.g. 17" />
                             <LabeledInput label="Bill No." value={headerDetails.billNo} onChange={(value) => { setheaderDetails({ ...headerDetails, billNo: value }) }} placeholder="e.g. 17" />
+
                         </div> : ""}
+                        <LabeledInput label="E-way Bill No." value={headerDetails.ewayBillNo} onChange={(value) => { setheaderDetails({ ...headerDetails, ewayBillNo: value }) }} placeholder="e.g. 17" />
                         <div className="gstComp">
                             <h5>Is GST note reqired?:</h5><input type="checkbox" />
                         </div>
@@ -507,6 +600,7 @@ export default function CreateInvoice() {
                                 canRemove={rows.length > 1}
                                 onChange={(field, value) => updateRow(row.id, field, value)}
                                 onRemove={() => removeRow(row.id)}
+                            // address={address}
                             />
                         ))}
 
@@ -517,6 +611,19 @@ export default function CreateInvoice() {
                             + Add Row
                         </button>
                     </div>
+                    {addressModalOpen && (
+                        <AddAddressModal
+                            onClose={onClose}
+                            onSave={onSave}
+                            from={from}
+                            to={to}
+                            setFrom={setFrom}
+                            setTo={setTo}
+                            clientList={clientList}
+                            setClientAddress={setClientForAddress}
+                            clientForAddress={clientForAddress}
+                        />
+                    )}
                     {/* )} */}
 
                     {/* Preview Panel */}

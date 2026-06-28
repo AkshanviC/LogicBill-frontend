@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import type { Clients, Drivers, Trailers, InvoiceList, Filters, Toast } from "../../interfaces/interfaces";
+import type { Clients, Drivers, Trailers, InvoiceList, Filters, Toast, Address } from "../../interfaces/interfaces";
 import { useNavigate } from "react-router-dom";
 import { EditModal, ViewModal } from "../../components/invoices";
 import { IconChevLeft, IconChevRight, IconEdit, IconEye, IconFilter, IconPrint, IconSearch, IconX } from "../../assets/Icons.tsx";
@@ -8,7 +8,7 @@ import { IconChevLeft, IconChevRight, IconEdit, IconEye, IconFilter, IconPrint, 
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-const EMPTY_FILTERS: Filters = { driverId: "", trailerId: "", clientId: "" };
+const EMPTY_FILTERS: Filters = { driverId: "", trailerId: "", clientId: "", addressId: "" };
 const LIMIT = 10;
 
 const InvoiceListComponent: React.FC = () => {
@@ -29,6 +29,7 @@ const InvoiceListComponent: React.FC = () => {
   const [trailerList, setTrailerList] = useState<Trailers[]>([]);
   const [clientList, setClientList] = useState<Clients[]>([]);
   const [invoiceList, setInvoiceList] = useState<InvoiceList[]>([]);
+  const [addressList, setAddressList] = useState<Address[]>([]); // Replace 'any' with the correct type for addresses
   const [filterDate, setFilterDate] = useState<{ from: string; to: string }>({ from: "", to: "" });
   const [printLoad, setPrintLoad] = useState(false);
   const toastId = React.useRef(0);
@@ -62,6 +63,7 @@ const InvoiceListComponent: React.FC = () => {
       return next;
     });
   };
+
   // close on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -72,20 +74,52 @@ const InvoiceListComponent: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-  const handleGenerate = (id: number) => {
+
+  const handleGenerate = (id: number | "multiple") => {
     if (printLoad) return;
     setPrintLoad(true);
-    fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/generate/${id}`).then(res => res.blob()).then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `invoice_${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    }).catch(err => console.error(err)).finally(() => setPrintLoad(false));
+    let user = localStorage.getItem("user");
+    if (user) {
+      user = JSON.parse(user);
+    }
+    if (id === "multiple") {
+      if (selectedIds.size === 0) {
+        addToast("Please select at least one invoice to generate.", "error");
+        setPrintLoad(false);
+        return;
+      }
+      console.log("Generating multiple invoices for IDs:", Array.from(selectedIds), selectedIds);
+      fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/generate`, { method: "POST", body: JSON.stringify({ invoiceIds: Array.from(selectedIds), createdBy: (user as any)?.id }), headers: { "Content-Type": "application/json" } }).then(res => res.blob()).then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `invoices.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      }).catch(err => console.error(err)).finally(() => setPrintLoad(false));
+      return;
+    }
+    else {
+      fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/generate/${id}`,
+        {
+          method: "POST",
+          body: JSON.stringify({ invoiceIds: Array.from(selectedIds), createdBy: (user as any)?.id }),
+          headers: { "Content-Type": "application/json" }
+        }).then(res => res.blob()).then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `invoice_${id}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+        }).catch(err => console.error(err)).finally(() => setPrintLoad(false));
+    }
   }
+
   const addToast = useCallback((message: string, type: "success" | "error" = "success") => {
     const id = ++toastId.current;
     setToasts((t) => [...t, { id, message, type }]);
@@ -108,13 +142,15 @@ const InvoiceListComponent: React.FC = () => {
   const clearFilters = () => { setFilters(EMPTY_FILTERS); setPage(1); };
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
   useEffect(() => {
     fetch(`${import.meta.env.VITE_APP_API_URL}/api/drivers/`).then(res => res.json()).then(res => setDriverList(res.data)).catch(err => console.error(err));
     fetch(`${import.meta.env.VITE_APP_API_URL}/api/trailers/`).then(res => res.json()).then(res => setTrailerList(res.data)).catch(err => console.error(err));
     fetch(`${import.meta.env.VITE_APP_API_URL}/api/clients/`).then(res => res.json()).then(res => setClientList(res.data)).catch(err => console.error(err));
-    // 
+    fetch(`${import.meta.env.VITE_APP_API_URL}/api/addresses/all`).then(res => res.json()).then(res => setAddressList(res)).catch(err => console.error(err));
 
   }, []);
+
   // Fetch
   useEffect(() => {
     setLoading(true);
@@ -126,6 +162,7 @@ const InvoiceListComponent: React.FC = () => {
       if (filters.clientId) params.set("clientId", filters.clientId);
       if (filterDate.from) params.set("dateFrom", filterDate.from);
       if (filterDate.to) params.set("dateTo", filterDate.to);
+      if (filters.addressId) params.set("addressId", filters.addressId);
       fetch(`${import.meta.env.VITE_APP_API_URL}/api/invoices/getInvoice??${params.toString()}`).then(res => res.json()).then(res => { setInvoiceList(res.data); setTotal(res.total); setTotalPages(res.totalPages) }).catch(err => console.log(err));
       // Replace with: fetchInvoices(page, LIMIT, filters).then(res => { ... })
 
@@ -139,6 +176,7 @@ const InvoiceListComponent: React.FC = () => {
       setLoading(false);
     }
   }, [page, debouncedSearch, filters, filterDate]);
+
   const handleSave = (updated: InvoiceList) => {
     // setInvoices((prev) => prev.map((inv) => (inv.id === updated.id ? updated : inv)));
     setEditInvoice(null);
@@ -168,6 +206,7 @@ const InvoiceListComponent: React.FC = () => {
     driverId: "Driver",
     trailerId: "Trailer",
     clientId: "Client",
+    addressId: "Address",
   };
 
   return (
@@ -191,9 +230,9 @@ const InvoiceListComponent: React.FC = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          {/* <div>
-            <button className="il-btn il-btn-primary" onClick={create}>Create Invoice</button>
-          </div> */}
+          <div>
+            <button className="il-btn il-btn-primary" onClick={() => handleGenerate("multiple")}>Generate Invoice</button>
+          </div>
           {/* // replace your button with this */}
           <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
             <button
@@ -271,6 +310,16 @@ const InvoiceListComponent: React.FC = () => {
             <option value="">All Clients</option>
             {clientList.map((value) => (
               <option key={value.id} value={value.id}>Client #{value.name}</option>
+            ))}
+          </select>
+          <select
+            className={`il-filter-select${filters.addressId ? " active" : ""}`}
+            value={filters.addressId}
+            onChange={(e) => setFilter("addressId", e.target.value)}
+          >
+            <option value="">All Addresses</option>
+            {addressList.map((value) => (
+              <option key={value.id} value={value.id}>From: {value.from} To: {value.to}</option>
             ))}
           </select>
 

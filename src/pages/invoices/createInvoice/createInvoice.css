@@ -1,0 +1,12 @@
+.from-to-div {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+/* .from-to-select {
+  flex: 1;
+} */
+.from-to-button {
+  margin-top: 10px;
+}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { type InvoiceList, type Invoice } from "../interfaces/interfaces.tsx";
+import { type InvoiceList, type Invoice, type Clients } from "../interfaces/interfaces.tsx";
 import { IconX } from "../assets/Icons.tsx";
 
 const DetailRow: React.FC<{ label: string; value?: string | number | null; accent?: boolean; full?: boolean }> = ({ label, value, accent, full }) => (
@@ -108,6 +108,52 @@ export const EditModal: React.FC<{ invoice: InvoiceList; onClose: () => void; on
                     <button className="il-btn il-btn-ghost" onClick={onClose}>Cancel</button>
                     <button className="il-btn il-btn-primary" onClick={handleSave} disabled={saving}>
                         {saving ? "Saving…" : "Save Changes"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export const AddAddressModal: React.FC<{ onClose: () => void; onSave: (from: string, to: string) => void; from: string; to: string; setFrom: (from: string) => void; setTo: (to: string) => void; clientList: Clients[]; setClientAddress: (clientId: number) => void; clientForAddress: number }> = ({ onClose, onSave, from, to, setFrom, setTo, clientList, setClientAddress, clientForAddress }) => {
+
+    const handleSave = () => {
+        if (from.trim() && to.trim()) {
+            onSave(from, to);
+        }
+    };
+
+    return (
+        <div className="il-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+            <div className="il-modal">
+                <div className="il-modal-header">
+                    <div className="il-modal-title">Add Address</div>
+                    <button className="il-modal-close" onClick={onClose}><IconX /></button>
+                </div>
+                <div className="il-modal-body">
+                    <div className="il-form-group">
+                        <label className="il-form-label">From</label>
+                        <input className="il-form-input" type="text" value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Enter from address" />
+                    </div>
+                    <div className="il-form-group">
+                        <label className="il-form-label">To</label>
+                        <input className="il-form-input" type="text" value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter to address" />
+                    </div>
+                </div>
+                <div className="il-modal-body">
+                    <div className="il-form-group">
+                        <label className="il-form-label">Client</label>
+                        <select className="il-form-input" value={clientForAddress} onChange={(e) => setClientAddress(Number(e.target.value))}>
+                            {clientList.map((client) => (
+                                <option key={client.id} value={client.id}>{client.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+                <div className="il-modal-footer">
+                    <button className="il-btn il-btn-ghost" onClick={onClose}>Cancel</button>
+                    <button className="il-btn il-btn-primary" onClick={handleSave}>
+                        Save Address
                     </button>
                 </div>
             </div>
