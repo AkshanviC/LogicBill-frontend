@@ -3,6 +3,7 @@ import type { Clients, Drivers, Trailers, InvoiceList, Filters, Toast, Address }
 import { useNavigate } from "react-router-dom";
 import { EditModal, ViewModal } from "../../components/invoices";
 import { IconChevLeft, IconChevRight, IconEdit, IconEye, IconFilter, IconPrint, IconSearch, IconX } from "../../assets/Icons.tsx";
+import Spinner from "../../components/spinner.tsx";
 // const updateInvoice = (id: number, data: Partial<Invoice>) =>
 //   apiFetch<Invoice>(`${import.meta.env.VITE_APP_API_URL}/${id}`, { method: "PUT", body: JSON.stringify(data) });
 
@@ -231,7 +232,9 @@ const InvoiceListComponent: React.FC = () => {
             />
           </div>
           <div>
-            <button className="il-btn il-btn-primary" onClick={() => handleGenerate("multiple")}>Generate Invoice</button>
+            <button className="il-btn il-btn-primary" onClick={() => handleGenerate("multiple")} disabled={printLoad}>
+              {printLoad ? <Spinner /> : "Generate Invoice"}
+            </button>
           </div>
           {/* // replace your button with this */}
           <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
