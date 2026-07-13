@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import type { Drivers, Trailers, Clients, InvoiceRow } from "../../interfaces/interfaces";
 import { useNavigate } from "react-router-dom";
@@ -5,8 +6,6 @@ import { toast } from "react-toastify";
 import Spinner from "../../components/spinner";
 import { AddAddressModal } from "../../components/invoices";
 import "./createInvoice/createInvoice.css"
-import { validateInvoiceForm, getFirstErrorMessage } from "../invoices/createInvoice/invoiceValidation"; // adjust path to where you save invoiceValidation.ts
-import type { ValidationErrors, RowErrors } from "../invoices/createInvoice/invoiceValidation.ts";
 // ── Types ──────────────────────────────────────────────────────────────────
 
 
@@ -75,35 +74,24 @@ interface LabeledInputProps {
     onChange: (v: string) => void;
     placeholder?: string;
     type?: string;
-    error?: string;
-    maxLength?: number;
 }
 
-function LabeledInput({ label, value, onChange, placeholder = "", type = "text", error, maxLength = 50 }: LabeledInputProps) {
-    const borderColor = error ? "#dc2626" : "#e0e8f5";
+function LabeledInput({ label, value, onChange, placeholder = "", type = "text" }: LabeledInputProps) {
     return (
         <div>
-            {label ? (
-                <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "#7c8db0", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                    {label}
-                </label>
-            ) : null}
+            <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: "#7c8db0", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                {label}
+            </label>
             <input
                 type={type}
                 value={value}
                 min={type === "number" ? 0 : undefined}
                 placeholder={placeholder}
                 onChange={(e) => onChange(e.target.value)}
-                style={{ width: "90%", border: `1.5px solid ${borderColor}`, borderRadius: 7, padding: "6px 10px", fontSize: 13, outline: "none", background: "#fff", color: "#1a2340", transition: "border 0.15s" }}
+                style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, outline: "none", background: "#fff", color: "#1a2340", transition: "border 0.15s" }}
                 onFocus={(e) => (e.currentTarget.style.borderColor = "#3b82f6")}
-                onBlur={(e) => (e.currentTarget.style.borderColor = borderColor)}
-                maxLength={maxLength}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "#e0e8f5")}
             />
-            {error ? (
-                <span style={{ display: "block", fontSize: 11, color: "#dc2626", marginTop: 4 }}>
-                    {error}
-                </span>
-            ) : null}
         </div>
     );
 }
@@ -114,11 +102,10 @@ interface RowEditorProps {
     canRemove: boolean;
     onChange: (field: keyof InvoiceRow, value: string | number) => void;
     onRemove: () => void;
-    errors?: RowErrors;
     //address: { id: number; from: string, to: string, clientId: number, created_at: string, updated_at: string }[] | [];
 }
 
-function RowEditor({ row, index, canRemove, onChange, onRemove, errors }: RowEditorProps) {
+function RowEditor({ row, index, canRemove, onChange, onRemove, }: RowEditorProps) {
     return (
         <div style={{ background: "#f5f8ff", border: "1.5px solid #dde6f8", borderRadius: 10, padding: 16, marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
@@ -133,14 +120,8 @@ function RowEditor({ row, index, canRemove, onChange, onRemove, errors }: RowEdi
                 )}
             </div>
 
-            {errors?.qty ? (
-                <div style={{ background: "#fee2e2", color: "#dc2626", borderRadius: 6, padding: "6px 10px", fontSize: 12, marginBottom: 10, fontWeight: 600 }}>
-                    {errors.qty}
-                </div>
-            ) : null}
-
             <div style={{ marginBottom: 10 }}>
-                <LabeledInput label="Description" value={row.description} onChange={(v) => onChange("description", v)} error={errors?.description} />
+                <LabeledInput label="Description" value={row.description} onChange={(v) => onChange("description", v)} />
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
@@ -152,10 +133,10 @@ function RowEditor({ row, index, canRemove, onChange, onRemove, errors }: RowEdi
 
             <h2 className="form-section-title">Other columns:</h2>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-                <LabeledInput label="Weight:" value={row.weight} onChange={(v) => onChange("weight", v)} placeholder="e.g. 20" error={errors?.weight} />
-                <LabeledInput label="No. of Trailers:" value={row.trailers} onChange={(v) => onChange("trailers", v)} placeholder="0" type="number" error={errors?.trailers} />
-                <LabeledInput label="Rate:" value={row.rate} onChange={(v) => onChange("rate", v)} placeholder="0" type="number" error={errors?.rate} />
-                <LabeledInput label="Amount (Rs.):" value={row.amount} onChange={(v) => onChange("amount", v)} placeholder="0" type="number" error={errors?.amount} />
+                <LabeledInput label="Weight:" value={row.weight} onChange={(v) => onChange("weight", v)} placeholder="e.g. TN05AK4833" />
+                <LabeledInput label="No. of Trailers:" value={row.trailers} onChange={(v) => onChange("trailers", v)} placeholder="0" type="number" />
+                <LabeledInput label="Rate:" value={row.rate} onChange={(v) => onChange("rate", v)} placeholder="0" type="number" />
+                <LabeledInput label="Amount (Rs.):" value={row.amount} onChange={(v) => onChange("amount", v)} placeholder="0" type="number" />
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
                 {/* <LabeledInput label="From" value={row.fromAddress} onChange={(v) => onChange("fromAddress", v)} placeholder="e.g. ZIRCON MT PLOT (14.04.25)" /> */}
@@ -190,10 +171,10 @@ function RowEditor({ row, index, canRemove, onChange, onRemove, errors }: RowEdi
             </div>
             <h2 className="form-section-title">Addon Rows:</h2>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10 }}>
-                <LabeledInput label="prorate:" value={row.prorate} onChange={(v) => onChange("prorate", v)} placeholder="0" type="number" error={errors?.prorate} />
-                <LabeledInput label="sgst:" value={row.sgst} onChange={(v) => onChange("sgst", v)} placeholder="0" type="number" error={errors?.sgst} />
-                <LabeledInput label="cgst:" value={row.cgst} onChange={(v) => onChange("cgst", v)} placeholder="0" type="number" error={errors?.cgst} />
-                <LabeledInput label="loading charges:" value={row.loadingCharge} onChange={(v) => onChange("loadingCharge", v)} placeholder="0" type="number" error={errors?.loadingCharge} />
+                <LabeledInput label="prorate:" value={row.prorate} onChange={(v) => onChange("prorate", v)} placeholder="0" type="number" />
+                <LabeledInput label="sgst:" value={row.sgst} onChange={(v) => onChange("sgst", v)} placeholder="0" type="number" />
+                <LabeledInput label="cgst:" value={row.cgst} onChange={(v) => onChange("cgst", v)} placeholder="0" type="number" />
+                <LabeledInput label="loading charges:" value={row.loadingCharge} onChange={(v) => onChange("loadingCharge", v)} placeholder="0" type="number" />
             </div>
 
         </div>
@@ -397,7 +378,6 @@ export default function CreateInvoice() {
     const [address, setAddress] = useState<{ id: number, from: string, to: string, clientId: number, created_at: string, updated_at: string }[]>([]);
     const [clientForAddress, setClientForAddress] = useState<number>(1);
     const [selectedAddess, setSelectedAddress] = useState<number>(0);
-    const [errors, setErrors] = useState<ValidationErrors>({});
 
     useEffect(() => {
         fetch(`${import.meta.env.VITE_APP_API_URL}/api/drivers/`).then(res => res.json()).then(res => setDriverList(res.data)).catch(err => console.error(err));
@@ -451,16 +431,10 @@ export default function CreateInvoice() {
         // </style></head><body>${content}</body></html>`);
         //     win.document.close();
         //     win.print();
-        const { isValid, errors: validationErrors } = validateInvoiceForm({
-            selectedFirm, client, driver, trailer, selectedAddess, headerDetails, rows,
-        });
-        setErrors(validationErrors);
-
-        if (!isValid) {
-            toast.error(getFirstErrorMessage(validationErrors) ?? "Please fix the errors in the form.");
+        if (selectedAddess === 0) {
+            toast.error("Please select an address before creating the invoice.");
             return;
         }
-
         if (loading) return;
         setLoading(true);
 
@@ -477,7 +451,6 @@ export default function CreateInvoice() {
                 toast.success("Invoice created successfully!");
                 setLoading(false);
                 setheaderDetails(headerDetailsValue);
-                setErrors({});
             }
         }
         catch (error) {
@@ -530,22 +503,20 @@ export default function CreateInvoice() {
                                 <select
                                     value={selectedFirm}
                                     onChange={(e) => { setSelectedFirm(e.target.value) }}
-                                    style={{ width: "90%", border: `1.5px solid ${errors.selectedFirm ? "#dc2626" : "#e0e8f5"}`, borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                    style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
                                 >
                                     {transportFirm ? transportFirm.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
                                 </select>
-                                {errors.selectedFirm ? <span style={{ display: "block", fontSize: 11, color: "#dc2626", marginTop: 4 }}>{errors.selectedFirm}</span> : null}
                             </div>
                             <div>
                                 <h2 className="form-section-title">Select Client:</h2>
                                 <select
                                     value={client}
                                     onChange={(e) => { setClient(+e.target.value) }}
-                                    style={{ width: "90%", border: `1.5px solid ${errors.client ? "#dc2626" : "#e0e8f5"}`, borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                    style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
                                 >
                                     {clientList ? clientList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
                                 </select>
-                                {errors.client ? <span style={{ display: "block", fontSize: 11, color: "#dc2626", marginTop: 4 }}>{errors.client}</span> : null}
                             </div>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
@@ -554,28 +525,26 @@ export default function CreateInvoice() {
                                 <select
                                     value={driver}
                                     onChange={(e) => { setDriver(+e.target.value) }}
-                                    style={{ width: "90%", border: `1.5px solid ${errors.driver ? "#dc2626" : "#e0e8f5"}`, borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                    style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
                                 >
                                     {driverList ? driverList.map((data) => <option key={`${data.id}+${data.name}`} value={data.id}>{data.name}</option>) : ""}
                                 </select>
-                                {errors.driver ? <span style={{ display: "block", fontSize: 11, color: "#dc2626", marginTop: 4 }}>{errors.driver}</span> : null}
                             </div>
                             <div>
                                 <h2 className="form-section-title">Select Trailer:</h2>
                                 <select
                                     value={trailer}
                                     onChange={(e) => { setTrailer(+e.target.value) }}
-                                    style={{ width: "90%", border: `1.5px solid ${errors.trailer ? "#dc2626" : "#e0e8f5"}`, borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
+                                    style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}
                                 >
                                     {trailerList ? trailerList.map((data) => <option key={`${data.id}+${data.regNo}`} value={data.id}>{data.regNo}</option>) : ""}
                                 </select>
-                                {errors.trailer ? <span style={{ display: "block", fontSize: 11, color: "#dc2626", marginTop: 4 }}>{errors.trailer}</span> : null}
                             </div>
                             <div>
                                 <h2 className="form-section-title">Select Address:</h2>
                                 <select id={`from-to-select`}
                                     name={`from-to-select-`} className="from-to-select" value={selectedAddess} onChange={(e) => setSelectedAddress(parseInt(e.target.value))}
-                                    style={{ width: "90%", border: `1.5px solid ${errors.selectedAddress ? "#dc2626" : "#e0e8f5"}`, borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}>
+                                    style={{ width: "90%", border: "1.5px solid #e0e8f5", borderRadius: 7, padding: "6px 10px", fontSize: 13, background: "#fff", color: "#1a2340" }}>
                                     <option value={0}>--Select Address--</option>
                                     {address?.map((a) => (
                                         <option key={a.id} value={a.id}>
@@ -584,17 +553,16 @@ export default function CreateInvoice() {
                                     ))}
                                 </select>
                                 <button className="from-to-button" onClick={() => setAddressModalOpen(true)}>Add Address</button>
-                                {errors.selectedAddress ? <span style={{ display: "block", fontSize: 11, color: "#dc2626", marginTop: 4 }}>{errors.selectedAddress}</span> : null}
                             </div>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "20px" }}>
                             <div>
                                 <h2 className="form-section-title">Diesel:</h2>
-                                <LabeledInput label="" value={headerDetails.diesel} onChange={(value) => { setheaderDetails({ ...headerDetails, diesel: value }) }} placeholder="eg:100" error={errors.headerDetails?.diesel} />
+                                <LabeledInput label="" value={headerDetails.diesel} onChange={(value) => { setheaderDetails({ ...headerDetails, diesel: value }) }} placeholder="eg:100" />
                             </div>
                             <div>
                                 <h2 className="form-section-title">Driver Beta:</h2>
-                                <LabeledInput label="" value={headerDetails.driverBeta} onChange={(value) => { setheaderDetails({ ...headerDetails, driverBeta: value }) }} placeholder="eg:1500" error={errors.headerDetails?.driverBeta} />
+                                <LabeledInput label="" value={headerDetails.driverBeta} onChange={(value) => { setheaderDetails({ ...headerDetails, driverBeta: value }) }} placeholder="eg:1500" />
                             </div>
                         </div>
                         {selectedFirm === "2" ? <h2 className="form-section-title">Enter Header Details:</h2> : ""}
@@ -603,13 +571,13 @@ export default function CreateInvoice() {
                             {/*  */}
 
                             {/* <LabeledInput label="Vendor Code" value={headerDetails.vendorCode} onChange={(value) => { setheaderDetails({ ...headerDetails, vendorCode: value }) }} placeholder="e.g. 17" /> */}
-                            <LabeledInput label="PAN" value={headerDetails.pan} onChange={(value) => { setheaderDetails({ ...headerDetails, pan: value }) }} placeholder="e.g. 17" error={errors.headerDetails?.pan} />
-                            <LabeledInput label="Bill No." value={headerDetails.billNo} onChange={(value) => { setheaderDetails({ ...headerDetails, billNo: value }) }} placeholder="e.g. 17" error={errors.headerDetails?.billNo} />
+                            <LabeledInput label="PAN" value={headerDetails.pan} onChange={(value) => { setheaderDetails({ ...headerDetails, pan: value }) }} placeholder="e.g. 17" />
+                            <LabeledInput label="Bill No." value={headerDetails.billNo} onChange={(value) => { setheaderDetails({ ...headerDetails, billNo: value }) }} placeholder="e.g. 17" />
 
                         </div> : ""}
-                        <LabeledInput label="Date" value={headerDetails.date} onChange={(value) => { setheaderDetails({ ...headerDetails, date: value }) }} placeholder="DD-MM-YYYY" error={errors.headerDetails?.date} />
-                        <LabeledInput label="Purchase Order No." value={headerDetails.pono} onChange={(value) => { setheaderDetails({ ...headerDetails, pono: value }) }} placeholder="e.g. 17" error={errors.headerDetails?.pono} type="number" />
-                        <LabeledInput label="E-way Bill No." value={headerDetails.ewayBillNo} onChange={(value) => { setheaderDetails({ ...headerDetails, ewayBillNo: value }) }} placeholder="e.g. 17" error={errors.headerDetails?.ewayBillNo} type="number" maxLength={12} />
+                        <LabeledInput label="Date" value={headerDetails.date} onChange={(value) => { setheaderDetails({ ...headerDetails, date: value }) }} placeholder="DD-MM-YYYY" />
+                        <LabeledInput label="Purchase Order No." value={headerDetails.pono} onChange={(value) => { setheaderDetails({ ...headerDetails, pono: value }) }} placeholder="e.g. 17" />
+                        <LabeledInput label="E-way Bill No." value={headerDetails.ewayBillNo} onChange={(value) => { setheaderDetails({ ...headerDetails, ewayBillNo: value }) }} placeholder="e.g. 17" />
                         <div className="gstComp">
                             <h5>Is GST note reqired?:</h5><input type="checkbox" />
                         </div>
@@ -627,7 +595,6 @@ export default function CreateInvoice() {
                                 canRemove={rows.length > 1}
                                 onChange={(field, value) => updateRow(row.id, field, value)}
                                 onRemove={() => removeRow(row.id)}
-                                errors={errors.rows?.[row.id]}
                             // address={address}
                             />
                         ))}

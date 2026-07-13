@@ -1023,3 +1023,12 @@ const fetchInvoices = (page: number, limit: number, filters: Filters) => {
   if (filters.clientId) params.set("clientId", filters.clientId);
   return apiFetch<PaginatedResponse>(`${import.meta.env.VITE_APP_API_URL}/api/invoices/getInvoice?${params.toString()}`);
 };
+
+//total amout calculator
+    // const totalAmount: number = rows.reduce((sum, r) => {
+    //     return (
+    //         sum +
+    //         (parseFloat(r.amt20) || 0) * (parseFloat(r.qty20) || 0) +
+    //         (parseFloat(r.amt40) || 0) * (parseFloat(r.qty40) || 0)
+    //     );
+    // }, 0);
